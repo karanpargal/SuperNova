@@ -27,6 +27,7 @@ export class BotAccountService {
       signer: this.litService.getMinterWallet(),
       network: this.litService.litNetwork,
     });
+    this.litContracts.connect();
   }
 
   async mintPKP(
@@ -101,12 +102,13 @@ export class BotAccountService {
       ethers.utils.computeAddress(publicKey)
     );
     const keyId = `${ipfsHash}_${userId}`;
+    debug("[mintPKP] keyId: %s", keyId);
     const claimTx =
       await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethods(
         {
           derivedKeyId: claim.derivedKeyId,
           signatures: claim.signatures,
-          keyType: BigNumber.from(2),
+          keyType: 2,
         },
         {
           keyType: 2,
@@ -115,16 +117,16 @@ export class BotAccountService {
           permittedAddresses: [],
           permittedAddressScopes: [],
           permittedAuthMethodTypes: [
-            BigNumber.from(
-              ethers.utils.keccak256(
-                Buffer.from(this.CUSTOM_AUTH_TYPE, "utf-8")
-              )
-            ),
+            BigNumber.from(hashString(this.CUSTOM_AUTH_TYPE)),
             BigNumber.from(AUTH_METHOD_TYPE.LitAction),
           ],
           permittedAuthMethodIds: [hashString(keyId), bs58Decode(ipfsHash)],
           permittedAuthMethodPubkeys: [`0x`, `0x`],
           permittedAuthMethodScopes: [
+            [
+              BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
+              BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),
+            ],
             [
               BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
               BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),

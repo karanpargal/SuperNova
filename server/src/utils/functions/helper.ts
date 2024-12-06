@@ -1,11 +1,9 @@
 import bs58 from "bs58";
-import crypto from "crypto";
+import { utils } from "ethers";
 
 export function hashString(keyId: string): string {
   try {
-    const hash = crypto.createHash("sha256");
-    hash.update(keyId, "utf8");
-    return hash.digest("hex");
+    return utils.keccak256(Buffer.from(keyId, "utf-8"));
   } catch (error: any) {
     throw new Error(`Failed to hash string: ${error.message}`);
   }
