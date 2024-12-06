@@ -104,6 +104,8 @@ export class BotAccountService {
     );
     const keyId = `${ipfsHash}_${userId}`;
     debug("[mintPKP] keyId: %s", keyId);
+    const mintCost = await contractClient.pkpNftContract.read.mintCost();
+    debug("[mintPKP] mintCost:", mintCost);
     const claimTx =
       await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethods(
         {
@@ -135,6 +137,10 @@ export class BotAccountService {
           ],
           addPkpEthAddressAsPermittedAddress: true,
           sendPkpToItself: true,
+        },
+        {
+          value: mintCost,
+          gasLimit: "10000000",
         }
         // [
         //   {
