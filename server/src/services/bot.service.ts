@@ -90,7 +90,7 @@ export class BotAccountService {
     const response = await nodeClient.executeJs(params);
 
     debug("[mintPKP] claimKey response: %O", response);
-    const claim = response.claims![accessToken];
+    const claim = response.claims![userId];
     const derivedKeyId = `0x${claim.derivedKeyId}`;
     const publicKey =
       await contractClient.pubkeyRouterContract.read.getDerivedPubkey(
