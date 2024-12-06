@@ -1,0 +1,12 @@
+<!-- Save this as second-corner-gradient.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="corner2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="10%" stop-color="#151735" />
+      
+      <stop offset="50%" stop-color="#463c8d" />
+      <stop offset="90%" stop-color="#0d0f23" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" fill="url(#corner2)" />
+</svg>

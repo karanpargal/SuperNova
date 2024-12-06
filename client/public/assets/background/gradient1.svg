@@ -1,0 +1,12 @@
+<!-- Save this as first-corner-gradient.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="corner1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="10%" stop-color="#5c6450" />
+     
+      <stop offset="40%" stop-color="#4a4741" />
+       <stop offset="60%" stop-color="#332d30" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" fill="url(#corner1)" />
+</svg>
