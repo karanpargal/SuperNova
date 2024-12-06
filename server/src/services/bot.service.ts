@@ -91,10 +91,11 @@ export class BotAccountService {
 
     debug("[mintPKP] claimKey response: %O", response);
     const claim = response.claims![accessToken];
+    const derivedKeyId = `0x${claim.derivedKeyId}`;
     const publicKey =
       await contractClient.pubkeyRouterContract.read.getDerivedPubkey(
         contractClient.stakingContract.read.address,
-        `0x${claim.derivedKeyId}`
+        derivedKeyId
       );
     debug("[mintPKP] Derived public key: %s", publicKey);
     debug(
@@ -106,7 +107,7 @@ export class BotAccountService {
     const claimTx =
       await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethods(
         {
-          derivedKeyId: claim.derivedKeyId,
+          derivedKeyId,
           signatures: claim.signatures,
           keyType: 2,
         },
