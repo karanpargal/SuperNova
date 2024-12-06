@@ -40,9 +40,7 @@ export class SupabaseService {
   };
 
   public getPkp = async (botPK: string, litNetwork: LIT_NETWORK_VALUES) => {
-    return {
-      address: "0x1234567890",
-    };
+    return null;
   };
 
   public savePkp = async (

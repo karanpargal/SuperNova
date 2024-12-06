@@ -131,7 +131,7 @@ export class LitService {
     return authSig;
   }
 
-  getMinterWallet(rpc_url?: string) {
+  getMinterWallet(rpc_url = "https://yellowstone-rpc.litprotocol.com/") {
     const provider = rpc_url
       ? new ethers.providers.JsonRpcProvider(rpc_url)
       : ethers.getDefaultProvider();

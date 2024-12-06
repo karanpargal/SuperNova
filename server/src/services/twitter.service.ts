@@ -16,10 +16,12 @@ export class TwitterService {
   }
 
   async login(): Promise<string> {
-    const authUrl = this.client.generateAuthURL({
-      state: this.STATE,
-      code_challenge_method: "s256",
-    });
+    // const authUrl = this.client.generateAuthURL({
+    //   state: this.STATE,
+    //   code_challenge: "code_challenge",
+    //   code_challenge_method: "plain",
+    // });
+    const authUrl = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${process.env.TWITTER_CLIENT_ID}&redirect_uri=${process.env.TWITTER_CALLBACK_URL}&scope=tweet.read+users.read+offline.access&state=${process.env.STATE}&code_challenge=challenge&code_challenge_method=plain`;
     return authUrl;
   }
 
@@ -29,8 +31,28 @@ export class TwitterService {
         throw new Error("Invalid state");
       }
 
-      const accessToken = (await this.client.requestAccessToken(code as string))
-        .token.access_token;
+      const params = new URLSearchParams();
+      params.append("grant_type", "authorization_code");
+      params.append("code", code);
+      params.append("redirect_uri", process.env.TWITTER_CALLBACK_URL!);
+      params.append("client_id", process.env.TWITTER_CLIENT_ID!);
+      params.append("code_verifier", "challenge");
+
+      const res = await fetch(`https://api.x.com/2/oauth2/token`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Basic ${Buffer.from(
+            `${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`
+          ).toString("base64")}`,
+        },
+        body: params.toString(),
+      });
+
+      const twitterResponse = await res.json();
+      const accessToken = twitterResponse.access_token;
+
+      console.log("Access token:", twitterResponse);
 
       return `
         <html>
@@ -74,7 +96,6 @@ export class TwitterService {
         const userResponse = await res.json();
         return userResponse.data;
       }
-
       return undefined;
     } catch (err) {
       console.error("twt err:", err);

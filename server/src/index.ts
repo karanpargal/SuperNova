@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { LitService } from "./services/lit.service";
 import { BotAccountService } from "./services/bot.service";
+import { TwitterService } from "./services/twitter.service";
 
 dotenv.config();
 
@@ -28,6 +29,30 @@ app.post("/mint", async (req: Request, res: Response) => {
       req.body.ipfsHash
     );
     res.status(200).json(mintResult);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/twitter/login", async (req: Request, res: Response) => {
+  try {
+    const twitterService = new TwitterService();
+    const authUrl = await twitterService.login();
+    res.status(302).redirect(authUrl);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/twitter/callback", async (req: Request, res: Response) => {
+  try {
+    const twitterService = new TwitterService();
+    console.log(req.query);
+    const callbackResult = await twitterService.getCallback(
+      req.query.code as string,
+      req.query.state as string
+    );
+    res.status(200).send(callbackResult);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
