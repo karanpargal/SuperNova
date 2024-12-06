@@ -7,7 +7,7 @@ import {
   LIT_ABILITY,
   LIT_NETWORK_VALUES,
 } from "@lit-protocol/constants";
-import { BigNumber, ethers, providers } from "ethers";
+import { BigNumber, ethers, providers, utils } from "ethers";
 import { LitContracts } from "@lit-protocol/contracts-sdk";
 import { JsonExecutionSdkParams } from "@lit-protocol/types";
 import { LitActionResource, LitPKPResource } from "@lit-protocol/auth-helpers";
@@ -107,7 +107,7 @@ export class BotAccountService {
     const mintCost = await contractClient.pkpNftContract.read.mintCost();
     debug("[mintPKP] mintCost:", mintCost);
     const claimTx =
-      await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethodsWithTypes(
+      await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethods(
         {
           derivedKeyId,
           signatures: claim.signatures,
@@ -123,7 +123,10 @@ export class BotAccountService {
             BigNumber.from(hashString(this.CUSTOM_AUTH_TYPE)),
             BigNumber.from(AUTH_METHOD_TYPE.LitAction),
           ],
-          permittedAuthMethodIds: [hashString(keyId), bs58Decode(ipfsHash)],
+          permittedAuthMethodIds: [
+            hashString(keyId),
+            utils.arrayify(bs58Decode(ipfsHash)),
+          ],
           permittedAuthMethodPubkeys: [`0x`, `0x`],
           permittedAuthMethodScopes: [
             [
@@ -140,7 +143,7 @@ export class BotAccountService {
         },
         {
           value: mintCost,
-          gasLimit: "10000000",
+          gasLimit: "100000000",
         }
         // [
         //   {
