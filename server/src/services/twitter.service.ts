@@ -63,18 +63,22 @@ export class TwitterService {
       }
     | undefined
   > {
-    const res = await fetch("https://api.x.com/2/users/me", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    try {
+      const res = await fetch("https://api.x.com/2/users/me", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-    if (res.ok) {
-      const userResponse = await res.json();
-      return userResponse.data;
+      if (res.ok) {
+        const userResponse = await res.json();
+        return userResponse.data;
+      }
+
+      return undefined;
+    } catch (err) {
+      console.error("twt err:", err);
     }
-
-    return undefined;
   }
 
   async logout(): Promise<

@@ -17,6 +17,7 @@ export class LitService {
   constructor() {
     this.litNodeClient = new LitNodeClient({
       litNetwork: this.litNetwork,
+      debug: true,
     });
   }
 

@@ -64,7 +64,7 @@ export class BotAccountService {
     );
     await this.litService.init();
     const nodeClient = await this.litService.getLitClient();
-    const contractClient = await this.litService.contracts;
+    const contractClient = await this.litContracts;
     const minter = await this.litService.getMinterWallet();
     const sessionSigs = await this.litService.generateSessionSigs(minter, [
       {
@@ -80,7 +80,6 @@ export class BotAccountService {
     const params: JsonExecutionSdkParams = {
       sessionSigs,
       ipfsId: ipfsHash,
-      code: LIT_ACTION_CODE,
       jsParams: {
         accessToken,
         method: "claimKey",
@@ -101,35 +100,71 @@ export class BotAccountService {
       "[mintPKP] Derived ETH address: %s",
       ethers.utils.computeAddress(publicKey)
     );
-
-    const pkpContract = await this.litService.pkpContract(minter);
     const keyId = `${ipfsHash}_${userId}`;
-    const { tx: claimTx, tokenId } = await pkpContract.claim(
-      claim.derivedKeyId,
-      claim.signatures,
-      [
+    const claimTx =
+      await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethods(
         {
-          id: hashString(keyId),
-          type: BigNumber.from(
-            ethers.utils.keccak256(Buffer.from(this.CUSTOM_AUTH_TYPE, "utf-8"))
-          ),
-          scopes: [
-            BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
-            BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),
-          ],
+          derivedKeyId: claim.derivedKeyId,
+          signatures: claim.signatures,
+          keyType: BigNumber.from(2),
         },
         {
-          id: bs58Decode(ipfsHash),
-          type: BigNumber.from(AUTH_METHOD_TYPE.LitAction),
-          scopes: [
-            BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
-            BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),
+          keyType: 2,
+          permittedIpfsCIDs: [],
+          permittedIpfsCIDScopes: [],
+          permittedAddresses: [],
+          permittedAddressScopes: [],
+          permittedAuthMethodTypes: [
+            BigNumber.from(
+              ethers.utils.keccak256(
+                Buffer.from(this.CUSTOM_AUTH_TYPE, "utf-8")
+              )
+            ),
+            BigNumber.from(AUTH_METHOD_TYPE.LitAction),
           ],
-        },
-      ]
-    );
+          permittedAuthMethodIds: [hashString(keyId), bs58Decode(ipfsHash)],
+          permittedAuthMethodPubkeys: [`0x`, `0x`],
+          permittedAuthMethodScopes: [
+            [
+              BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
+              BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),
+            ],
+          ],
+          addPkpEthAddressAsPermittedAddress: true,
+          sendPkpToItself: true,
+        }
+        // [
+        //   {
+        //     id: hashString(keyId),
+        //     type: BigNumber.from(
+        //       ethers.utils.keccak256(
+        //         Buffer.from(this.CUSTOM_AUTH_TYPE, "utf-8")
+        //       )
+        //     ),
+        //     scopes: [
+        //       BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
+        //       BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),
+        //     ],
+        //   },
+        //   {
+        //     id: bs58Decode(ipfsHash),
+        //     type: BigNumber.from(AUTH_METHOD_TYPE.LitAction),
+        //     scopes: [
+        //       BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
+        //       BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),
+        //     ],
+        //   },
+        // ]
+      );
     const claimTxReceipt = await claimTx.wait(1);
     debug("[mintPKP] PKP claim receipt: %O", claimTxReceipt);
+    // Find the event that contains the token ID
+    const mintEvent = claimTxReceipt.events!.find(
+      (event) => event.event === "Transfer"
+    );
+
+    // Extract the token ID from the event arguments
+    const tokenId = mintEvent!.args!.tokenId;
     const pkpEthAddress =
       await contractClient.pkpNftContract.read.getEthAddress(
         BigNumber.from(tokenId)
