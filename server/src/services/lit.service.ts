@@ -1,0 +1,146 @@
+import {
+  createSiweMessageWithRecaps,
+  generateAuthSig,
+} from "@lit-protocol/auth-helpers";
+import { LIT_NETWORK, LIT_NETWORK_VALUES } from "@lit-protocol/constants";
+import { LitNodeClient } from "@lit-protocol/lit-node-client";
+import { AuthSig, LitResourceAbilityRequest } from "@lit-protocol/types";
+import { debug, trace } from "console";
+import { ethers, Signer } from "ethers";
+import { SiweMessage } from "siwe";
+import { generateIdSync } from "../utils/functions/helper";
+
+export class LitService {
+  public readonly litNetwork: LIT_NETWORK_VALUES = LIT_NETWORK.DatilDev;
+  private readonly litNodeClient: LitNodeClient;
+
+  constructor() {
+    this.litNodeClient = new LitNodeClient({
+      litNetwork: this.litNetwork,
+    });
+  }
+
+  public init = async (): Promise<void> => {
+    await this.litNodeClient.connect();
+  };
+
+  async getLitClient() {
+    return this.litNodeClient;
+  }
+
+  /**
+   * Generate session signatures
+   * @param signer The signer wallet
+   * @param resources The resource abilities
+   * @param chainId
+   * @param expirationTime
+   * @param statement
+   * @returns
+   */
+  async generateSessionSigs(
+    signer: Signer,
+    resources: LitResourceAbilityRequest[],
+    chainId = 1,
+    expirationTime?: string,
+    statement = "Generate a session signature"
+  ) {
+    trace("[generateSessionSigs] generate request: %O", {
+      resources,
+      chainId,
+      expirationTime,
+      statement,
+    });
+    const sessionSigs = await this.litNodeClient.getSessionSigs({
+      chain: "ethereum",
+      expiration:
+        expirationTime ?? new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+      resourceAbilityRequests: resources,
+      authNeededCallback: async (callbackParams) => {
+        const { resourceAbilityRequests, uri, expiration } = callbackParams;
+        debug("[generateSessionSigs] AuthCallbackParams: %O", callbackParams);
+        const toSign = await createSiweMessageWithRecaps({
+          uri: uri ?? "",
+          resources: resourceAbilityRequests ?? [],
+          expiration:
+            expiration ?? new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+          chainId,
+          walletAddress: await signer.getAddress(),
+          nonce: generateIdSync(16, "0123456789"),
+          domain: "collab.land",
+          statement,
+          litNodeClient: this.litNodeClient,
+          version: "1",
+        });
+        trace("[generateSessionSigs:authNeededCallback] toSign: %O", toSign);
+        return generateAuthSig({
+          signer,
+          toSign,
+          address: await signer.getAddress(),
+        });
+      },
+    });
+    debug("[generateSessionSigs] Session sigs: %O", sessionSigs);
+    return sessionSigs;
+  }
+
+  /**
+   * Generate an auth signature
+   * @param signer - Signer
+   * @param chainId - Chain id
+   * @returns
+   */
+  async generateAuthSig(
+    signer: Signer,
+    chainId = 1,
+    uri = "https://collab.land",
+    resources?: string[],
+    expirationTime?: string,
+    statement = "Generate a signature for the PKP"
+  ) {
+    trace("[generateAuthSig] generate request: %O", {
+      chainId,
+      uri,
+      resources,
+      expirationTime,
+      statement,
+    });
+    const siweMsg = new SiweMessage({
+      address: await signer.getAddress(),
+      chainId,
+      uri,
+      domain: "collab.land",
+      resources: resources ?? [],
+      expirationTime:
+        expirationTime ?? new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+      issuedAt: new Date().toISOString(),
+      version: "1",
+      nonce: generateIdSync(16, "0123456789"),
+      statement,
+    });
+
+    debug("[generateAuthSig] SIWE message: %O", siweMsg);
+    const msg = siweMsg.prepareMessage();
+    const sig = await signer.signMessage(msg);
+    const authSig: AuthSig = {
+      sig,
+      derivedVia: "web3.eth.personal.sign",
+      signedMessage: msg,
+      address: siweMsg.address,
+    };
+    return authSig;
+  }
+
+  getMinterWallet(rpc_url?: string) {
+    const provider = rpc_url
+      ? new ethers.providers.JsonRpcProvider(rpc_url)
+      : ethers.getDefaultProvider();
+
+    if (!process.env.MINTER_PRIVATE_KEY) {
+      throw new Error("MINTER_PRIVATE_KEY is not set");
+    }
+    const pvtKey = process.env.MINTER_PRIVATE_KEY;
+    const wallet = new ethers.Wallet(pvtKey, provider);
+
+    return wallet;
+  }
+}
