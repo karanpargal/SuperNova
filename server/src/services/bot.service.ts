@@ -107,7 +107,7 @@ export class BotAccountService {
     const mintCost = await contractClient.pkpNftContract.read.mintCost();
     debug("[mintPKP] mintCost:", mintCost);
     const claimTx =
-      await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethods(
+      await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethodsWithTypes(
         {
           derivedKeyId,
           signatures: claim.signatures,
