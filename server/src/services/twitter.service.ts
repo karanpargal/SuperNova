@@ -1,5 +1,6 @@
 import { auth } from "twitter-api-sdk";
 import dotenv from "dotenv";
+import { debug } from "console";
 dotenv.config();
 
 export class TwitterService {
@@ -72,7 +73,10 @@ export class TwitterService {
     }
   }
 
-  async getUserData(accessToken: string): Promise<
+  async getUserData(
+    accessToken: string,
+    _userId?: string
+  ): Promise<
     | {
         id: string;
         name: string;
@@ -80,11 +84,14 @@ export class TwitterService {
       }
     | undefined
   > {
-    return {
-      id: "1234567890",
-      name: "Test User",
-      username: "testuser",
-    };
+    if (_userId != null) {
+      return {
+        id: _userId,
+        name: `Dev Mode User ${_userId}`,
+        username: `devuser-${_userId}`,
+      };
+    }
+    debug("[getUserData] _userId not mentioned, invoking twitter API...");
     try {
       // const res = await fetch("https://api.twitter.com/2/users/me", {
       //   headers: {
@@ -103,7 +110,7 @@ export class TwitterService {
         username: "testuser",
       };
     } catch (err) {
-      console.error("twt err:", err);
+      console.error("Twitter API error:", err);
     }
   }
 

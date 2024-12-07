@@ -1,6 +1,14 @@
 import { LIT_NETWORK_VALUES } from "@lit-protocol/constants";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+export type pkpSchema = {
+  id: string;
+  pkp_eth_address: string;
+  created_at: string;
+  token_id: string;
+  key_id: string;
+};
+
 export class SupabaseService {
   private static anonClient: SupabaseClient;
 
@@ -39,18 +47,37 @@ export class SupabaseService {
     return this.anonClient;
   };
 
-  public getPkp = async (botPK: string, litNetwork: LIT_NETWORK_VALUES) => {
-    return null;
+  public getPkp = async (userId: string) => {
+    const supabase = SupabaseService.getSupabase();
+    const { data, error } = await supabase
+      .from("pkps")
+      .select("*")
+      .eq("id", userId);
+    if (error) {
+      console.error("[supabaseError]: %O", error);
+    }
+    return data?.[0];
   };
 
-  public savePkp = async (
-    botPK: string,
-    pkpEthAddress: string,
-    keyId: string,
-    litNetwork: LIT_NETWORK_VALUES
-  ) => {
-    return {
-      address: "0x1234567890",
-    };
+  public savePkp = async ({
+    id,
+    key_id,
+    pkp_eth_address,
+    token_id,
+  }: Omit<pkpSchema, "created_at">) => {
+    const supabase = SupabaseService.getSupabase();
+    const { data, error } = await supabase
+      .from("pkps")
+      .insert({
+        id,
+        key_id,
+        pkp_eth_address,
+        token_id,
+      })
+      .select();
+    if (error) {
+      console.error("[supabaseError]: %O", error);
+    }
+    return data?.[0];
   };
 }

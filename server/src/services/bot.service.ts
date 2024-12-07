@@ -36,7 +36,8 @@ export class BotAccountService {
 
   async mintPKP(
     accessToken: string,
-    ipfsHash: string
+    ipfsHash: string,
+    _userId?: string
   ): Promise<{
     receipt?: providers.TransactionReceipt;
     tokenId?: string;
@@ -44,18 +45,17 @@ export class BotAccountService {
     litNetwork: LIT_NETWORK_VALUES;
     keyId: string;
   }> {
-    const userData = await this.twitterService.getUserData(accessToken);
+    const userData = await this.twitterService.getUserData(
+      accessToken,
+      _userId
+    );
     if (!userData) {
       throw new Error("Failed to get user data");
     }
     const userId = userData.id;
     debug("[mintPKP] userId: %s", userId);
-    const botPK = `TWT#USER#BOT:${userId}`;
 
-    const pkpExists = await this.supabaseService.getPkp(
-      botPK,
-      this.litService.litNetwork
-    );
+    const pkpExists = await this.supabaseService.getPkp(userId);
     if (pkpExists) {
       debug("[mintPKP] PKP already exists IN DB: %O", pkpExists);
       return {
@@ -89,6 +89,7 @@ export class BotAccountService {
         accessToken,
         method: "claimKey",
         isDev: true,
+        overrideUserID: userId,
       },
     };
     debug("[mintPKP] Lit action params: %O", params);
@@ -209,18 +210,19 @@ export class BotAccountService {
         BigNumber.from(pkpInfo.tokenId)
       );
     debug("[mintPKP] pkpEthAddress: %s", pkpEthAddress);
-    await this.supabaseService.savePkp(
-      botPK,
-      pkpEthAddress,
-      keyId,
-      this.litService.litNetwork
-    );
+    const res = await this.supabaseService.savePkp({
+      id: userId,
+      key_id: keyId,
+      pkp_eth_address: pkpEthAddress,
+      token_id: pkpInfo.tokenId!,
+    });
+    debug("[mintPKP] saved pkp in Supabase: %O", res);
     return {
-      receipt: claimTxReceipt,
       tokenId: pkpInfo.tokenId!,
       pkpEthAddress,
-      litNetwork: this.litService.litNetwork,
       keyId,
+      receipt: claimTxReceipt,
+      litNetwork: this.litService.litNetwork,
     };
   }
 }

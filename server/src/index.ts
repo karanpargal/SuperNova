@@ -26,7 +26,8 @@ app.post("/mint", async (req: Request, res: Response) => {
     console.log("minting PKP");
     const mintResult = await botService.mintPKP(
       req.body.accessToken,
-      req.body.ipfsHash
+      req.body.ipfsHash,
+      req.body.userId
     );
     res.status(200).json(mintResult);
   } catch (error: any) {
