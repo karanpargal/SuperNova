@@ -55,8 +55,8 @@ export const InputForm: React.FC = () => {
           },
           body: JSON.stringify({
             accessToken: localStorage.getItem("token"),
-            ipfsHash: "QmP227jaBxfD7CVdx6KEvhVHGuzg2x2L2hK7BW5BLZdBVv",
-            executeIpfsHash: "Qmd6U63pCjj6AzpFuxLSfxY7ov6v67MpnYYGyN1MFsjQZU",
+            ipfsHash: process.env.NEXT_PUBLIC_IPFS_HASH,
+            executeIpfsHash: process.env.NEXT_PUBLIC_EXECUTE_IPFS_HASH,
             userId: localStorage.getItem("userId"),
           }),
         }
@@ -93,8 +93,8 @@ export const InputForm: React.FC = () => {
           },
           body: JSON.stringify({
             accessToken: localStorage.getItem("token"),
-            ipfsHash: "QmRymKnaCZK6zYjqih5U2nKtSv4hVJJFN4UfxARhYyihSR",
-            executeIpfsHash: "QmWJerRYebTcm3P6Gk7HUiBKKbjia8LJJ8KdcZDj4ysr8J",
+            ipfsHash: process.env.NEXT_PUBLIC_IPFS_HASH,
+            executeIpfsHash: process.env.NEXT_PUBLIC_EXECUTE_IPFS_HASH,
             userId: localStorage.getItem("userId"),
             ciphertext: localStorage.getItem("ciphertext"),
             address: walletAddress,

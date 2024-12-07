@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useWalletContext } from "@/utils/context/WalletContext";
 import { Button } from "@/components/ui/button";
@@ -61,8 +61,8 @@ export const CreateTokenForm: React.FC = () => {
           },
           body: JSON.stringify({
             accessToken: localStorage.getItem("token"),
-            ipfsHash: "QmP227jaBxfD7CVdx6KEvhVHGuzg2x2L2hK7BW5BLZdBVv",
-            executeIpfsHash: "Qmd6U63pCjj6AzpFuxLSfxY7ov6v67MpnYYGyN1MFsjQZU",
+            ipfsHash: process.env.NEXT_PUBLIC_IPFS_HASH,
+            executeIpfsHash: process.env.NEXT_PUBLIC_EXECUTE_IPFS_HASH,
             userId: localStorage.getItem("userId"),
             ciphertext:
               "r254q67XYFSAj6edqDqNWocssQ5qU3ALA5rPIkZ8xE2kxh3mh0ZajiQ3ftEBThNTi+Az3vv+Yz41neCObDMWzoYXm/otEbrl5MlshoWBUcVDtDPwWJQ2sbVHFHKDhGUn3bm/G3mA9s1gYMAaawrzy8g8tZvgCvEXshkIM/1n2f7DDo2bpEDLesrC9/hx3UrcrxYYGgI=",
@@ -86,10 +86,6 @@ export const CreateTokenForm: React.FC = () => {
       setIsMinting(false);
       setIsSuccessModalOpen(true);
     }
-  };
-
-  const closeModal = () => {
-    setIsSuccessModalOpen(false);
   };
 
   return (
