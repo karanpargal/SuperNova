@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useToken } from "@/utils/context/TokenContext";
+import Image from "next/image";
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
@@ -60,7 +61,13 @@ export const Navbar: React.FC = () => {
   return (
     <section>
       <nav className="text-white flex items-center px-12 py-6 justify-between">
-        <h1>Logo</h1>
+        <Image
+          src={"/assets/logo.svg"}
+          alt="logo"
+          width={100}
+          height={100}
+          className="md:block hidden"
+        />
         <ul className="flex items-center gap-x-6 text-lg font-medium bg-app-dark-purple/50 px-10 ml-20 py-4 rounded-full border border-app-pink">
           {navItems.map((item) => {
             const isActive = pathname === item.url;
@@ -80,13 +87,13 @@ export const Navbar: React.FC = () => {
           })}
         </ul>
         {hasToken ? (
-          <Button className="text-xl text-app-pink rounded-full py-6 border border-app-dark-purple">
+          <Button className="text-xl text-white rounded-full py-6 border border-app-pink bg-app-dark-purple">
             Launch App
           </Button>
         ) : (
           <Button
             onClick={handleLogin}
-            className="text-xl text-app-pink rounded-full py-6 border border-app-dark-purple"
+            className="text-xl text-white rounded-full py-6 border border-app-pink bg-app-dark-purple"
           >
             Connect Twitter
           </Button>

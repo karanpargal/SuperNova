@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -63,11 +64,11 @@ export const InputForm: React.FC = () => {
   }, []);
 
   return (
-    <section className="py-16">
+    <section className="md:py-16 py-8 flex">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 border border-app-pink rounded-lg text-left w-2/3 p-10"
+          className="md:space-y-8 space-y-2 border border-app-pink rounded-lg text-left md:w-2/3 w-full md:p-10 p-6 mx-auto"
         >
           <FormField
             control={form.control}
@@ -80,24 +81,34 @@ export const InputForm: React.FC = () => {
                 <FormControl>
                   <Input
                     className="w-full text-left border-app-jet border bg-app-eerie text-white placeholder:text-app-gray/60 p-2"
-                    placeholder=""
+                    placeholder="your bot token"
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-app-blue" />
               </FormItem>
             )}
           />
 
-          <div className="flex items-center gap-2">
-            <Button className="relative inline-flex items-center justify-center p-4 px-5 py-6 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 w-96 mx-auto mt-10">
-              <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-700"></span>
-              <span className="absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 bg-pink-500 rounded-full opacity-30 group-hover:rotate-90 ease"></span>
-              <span className="relative text-white">Submit</span>
-            </Button>
+          {walletAddress && (
+            <FormItem className="flex flex-col mt-4">
+              <FormLabel className="text-app-gray text-lg">
+                Wallet Address
+              </FormLabel>
+              <FormControl>
+                <Input
+                  className="w-full text-left border-app-jet border bg-app-eerie text-white placeholder:text-app-gray/60 p-2"
+                  value={walletAddress}
+                  disabled
+                />
+              </FormControl>
+            </FormItem>
+          )}
+
+          <div className="flex flex-wrap md:flex-row flex-col md:gap-2">
             {!walletAddress && (
               <Button
-                className="relative inline-flex items-center justify-center p-4 px-5 py-6 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 w-96 mx-auto mt-10"
+                className="relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 md:w-96 w-64 mx-auto md:mt-10 mt-6"
                 onClick={() => {
                   handleMintPkp();
                 }}
@@ -107,6 +118,11 @@ export const InputForm: React.FC = () => {
                 <span className="relative text-white">Get Wallet</span>
               </Button>
             )}
+            <Button className="relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 md:w-96 w-64 mx-auto md:mt-10 mt-6">
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-700"></span>
+              <span className="absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 bg-pink-500 rounded-full opacity-30 group-hover:rotate-90 ease"></span>
+              <span className="relative text-white">Submit</span>
+            </Button>
           </div>
         </form>
       </Form>
