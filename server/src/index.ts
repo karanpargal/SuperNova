@@ -80,7 +80,8 @@ app.post("/check-account", async (req: Request, res: Response) => {
       {
         method: "getAccount",
         ciphertext: req.body.ciphertext,
-        dataToEncryptHash: req.body.dataToEncryptHash,
+        dataToEncryptHash:
+          req.body.dataToEncryptHash ?? req.body.data_to_encrypt_hash,
       },
       req.body.userId
     );

@@ -10,7 +10,7 @@ import {
 import { BigNumber, ethers, providers, utils } from "ethers";
 import { LitContracts } from "@lit-protocol/contracts-sdk";
 import { ExecuteJsResponse, JsonExecutionSdkParams } from "@lit-protocol/types";
-import { LitActionResource, LitPKPResource } from "@lit-protocol/auth-helpers";
+import { LitAccessControlConditionResource, LitActionResource, LitPKPResource } from "@lit-protocol/auth-helpers";
 import { LitService } from "./lit.service";
 import {
   bs58Decode,
@@ -270,6 +270,10 @@ export class BotAccountService {
         {
           resource: new LitActionResource("*"),
           ability: LIT_ABILITY.LitActionExecution,
+        },
+        {
+          resource: new LitAccessControlConditionResource("*"),
+          ability: LIT_ABILITY.AccessControlConditionDecryption,
         },
       ],
       capabilityAuthSigs: [capacityDelegationAuthSig],
