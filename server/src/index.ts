@@ -60,6 +60,39 @@ app.post("/mint", async (req: Request, res: Response) => {
   }
 });
 
+app.post("/check-account", async (req: Request, res: Response) => {
+  try {
+    const litService = new LitService();
+    console.log("init litService");
+    await litService.init();
+    console.log("init botService");
+    const botService = new BotAccountService(litService);
+    console.log("checking account");
+    const mintResult = await botService.mintPKP(
+      req.body.accessToken,
+      req.body.ipfsHash,
+      req.body.userId
+    );
+    console.log("mintResult: %O", mintResult);
+    const litResponse = await botService.executeLitAction(
+      req.body.accessToken,
+      req.body.executeIpfsHash,
+      {
+        method: "getAccount",
+        ciphertext: req.body.ciphertext,
+        dataToEncryptHash: req.body.dataToEncryptHash,
+      },
+      req.body.userId
+    );
+    console.log("litResponse: %O", litResponse);
+    const accountDetails = JSON.parse(litResponse.response as string);
+    console.log("accountDetails: %O", accountDetails);
+    res.status(200).json(accountDetails);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get("/twitter/login", async (req: Request, res: Response) => {
   try {
     const twitterService = new TwitterService();
