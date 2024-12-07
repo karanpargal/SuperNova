@@ -26,9 +26,9 @@ const formSchema = z.object({
 });
 
 export const InputForm: React.FC = () => {
-  const [walletAddress, setWalletAddress] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
-  const { walletConnected } = useWalletContext();
+  const { walletConnected, setWalletAddress, walletAddress } =
+    useWalletContext();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
