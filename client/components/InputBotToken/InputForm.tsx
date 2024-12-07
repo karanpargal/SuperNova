@@ -27,6 +27,7 @@ const formSchema = z.object({
 
 export const InputForm: React.FC = () => {
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const { walletConnected, setWalletAddress, walletAddress } =
     useWalletContext();
 
@@ -43,6 +44,7 @@ export const InputForm: React.FC = () => {
   };
 
   const handleMintPkp = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/get-account`,
@@ -66,6 +68,8 @@ export const InputForm: React.FC = () => {
       localStorage.setItem("executeIpfsHash", data.executeIpfsHash);
     } catch (error) {
       console.error("Mint PKP Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -148,6 +152,7 @@ export const InputForm: React.FC = () => {
                 onClick={() => {
                   handleMintPkp();
                 }}
+                disabled={loading}
               >
                 <span
                   className={`absolute inset-0 w-full h-full bg-gradient-to-br ${
@@ -161,7 +166,9 @@ export const InputForm: React.FC = () => {
                     walletConnected ? "bg-pink-950" : "bg-pink-500 "
                   }rounded-full opacity-30 group-hover:rotate-90 ease`}
                 ></span>
-                <span className="relative text-white">Get Wallet</span>
+                <span className="relative text-white">
+                  {loading ? "Generating Wallet..." : "Generate Wallet"}
+                </span>
               </Button>
             )}
             {submitted ? (
