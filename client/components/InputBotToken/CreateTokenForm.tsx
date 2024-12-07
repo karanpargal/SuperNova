@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useWalletContext } from "@/utils/context/WalletContext";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { SuccessModal } from "../shared/successModal";
 
 const formSchema = z.object({
   Name: z.string().min(2, {
@@ -27,7 +28,14 @@ const formSchema = z.object({
 
 export const CreateTokenForm: React.FC = () => {
   const [isMinting, setIsMinting] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const { walletAddress, walletConnected } = useWalletContext();
+  const [tokenDetails, setTokenDetails] = useState({
+    name: "",
+    symbol: "",
+    txnHash: "",
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -67,17 +75,26 @@ export const CreateTokenForm: React.FC = () => {
         }
       );
       const responseData = await response.json();
-      console.log(responseData);
+      setTokenDetails({
+        name: data.Name,
+        symbol: data.Symbol,
+        txnHash: responseData.transactionHash || "N/A",
+      });
     } catch (error) {
       console.error("Minting Error:", error);
     } finally {
       setIsMinting(false);
+      setIsSuccessModalOpen(true);
     }
+  };
+
+  const closeModal = () => {
+    setIsSuccessModalOpen(false);
   };
 
   return (
     <section
-      className={`md:py-16 py-8 flex flex-col ${
+      className={`md:py-2 py-8 flex flex-col ${
         walletConnected ? "bg-white" : "bg-app-night"
       } px-12 h-screen`}
     >
@@ -93,7 +110,7 @@ export const CreateTokenForm: React.FC = () => {
           onSubmit={form.handleSubmit(onSubmit)}
           className={`md:space-y-8 space-y-3 border ${
             walletConnected ? "border-app-crimson" : "border-app-pink"
-          }  rounded-lg text-left md:w-1/3 w-full md:p-10 p-6 mx-auto h-max my-auto`}
+          }  rounded-lg text-left md:w-1/3 w-full md:p-10 p-6 mx-auto h-max mt-20`}
         >
           <FormField
             control={form.control}
@@ -103,7 +120,7 @@ export const CreateTokenForm: React.FC = () => {
                 <FormLabel
                   className={`${
                     walletConnected ? "text-app-secondary" : "text-app-gray"
-                  }md:text-lg text-base`}
+                  } md:text-lg text-base`}
                 >
                   Name
                 </FormLabel>
@@ -176,6 +193,11 @@ export const CreateTokenForm: React.FC = () => {
           </Button>
         </form>
       </Form>
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        setIsOpen={setIsSuccessModalOpen}
+        tokenDetails={tokenDetails}
+      />
     </section>
   );
 };
