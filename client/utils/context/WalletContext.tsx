@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
-import { set } from "react-hook-form";
 
 type WalletContextType = {
   walletConnected: boolean;

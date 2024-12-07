@@ -129,7 +129,7 @@ export const InputForm: React.FC = () => {
                     disabled
                   />
                   <CopyIcon
-                    className="h-4 w-4 text-white"
+                    className="h-4 w-4 text-black"
                     onClick={() => {
                       navigator.clipboard.writeText(walletAddress);
                       alert("Copied to clipboard");
