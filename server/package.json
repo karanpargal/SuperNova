@@ -18,11 +18,13 @@
     "@lit-protocol/lit-node-client": "^7.0.1",
     "@lit-protocol/types": "^7.0.1",
     "@supabase/supabase-js": "^2.47.2",
+    "axios": "^1.7.9",
     "bs58": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "ethers": "5.7.0",
     "express": "^4.21.2",
+    "form-data": "^4.0.1",
     "siwe": "^2.3.2",
     "twitter-api-sdk": "^1.2.1"
   },
