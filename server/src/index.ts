@@ -67,7 +67,7 @@ app.post("/get-account", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/check-account", async (req: Request, res: Response) => {
+app.post("/mint-token", async (req: Request, res: Response) => {
   try {
     const litService = new LitService();
     console.log("init litService");
@@ -85,17 +85,21 @@ app.post("/check-account", async (req: Request, res: Response) => {
       req.body.accessToken,
       req.body.executeIpfsHash,
       {
-        method: "getAccount",
+        method: "mintToken",
         ciphertext: req.body.ciphertext,
         dataToEncryptHash:
           req.body.dataToEncryptHash ?? req.body.data_to_encrypt_hash,
+        tokenName: req.body.name,
+        tokenSymbol: req.body.symbol,
+        tokenType: req.body.symbol + "Coin",
+        tokenApiUrl: process.env.TOKEN_API_URL!,
       },
       req.body.userId
     );
     console.log("litResponse: %O", litResponse);
-    const accountDetails = JSON.parse(litResponse.response as string);
-    console.log("accountDetails: %O", accountDetails);
-    res.status(200).json(accountDetails);
+    const tokenDetails = JSON.parse(litResponse.response as string);
+    console.log("tokenDetails: %O", tokenDetails);
+    res.status(200).json(tokenDetails);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
