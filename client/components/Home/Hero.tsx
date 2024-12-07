@@ -43,9 +43,9 @@ export const Hero: React.FC = () => {
   return (
     <section className="w-full flex flex-col mx-auto text-center tracking-wide gap-y-10 md:mt-40">
       <div className="absolute inset-0 z-0 bg-transparent overflow-hidden hidden md:block">
-        <div className="absolute top-1/2 my-8 w-full h-1 bg-gradient-to-r from-transparent via-white to-transparent animate-move-lines"></div>
+        <div className="absolute top-1/2 sm:mt-40 xl:mt-28 w-full h-1 bg-gradient-to-r from-transparent via-white to-transparent animate-move-lines"></div>
       </div>
-      <div className="flex items-center flex-wrap justify-center gap-2 md:gap-10">
+      <div className="md:flex md:flex-nowrap flex-wrap flex items-center justify-center gap-2 md:gap-10  mx-auto">
         {/* Adjust image sizes for smaller screens */}
         <Image
           className="sm:h-56 sm:w-56"
@@ -54,7 +54,7 @@ export const Hero: React.FC = () => {
           width={150}
           height={100}
         />
-        <div className="flex flex-col text-app-gray text-xl sm:text-2xl md:text-6xl gap-y-3 max-w-4xl mx-auto">
+        <div className="flex flex-col text-app-gray text-xl md:text-6xl gap-y-3 max-w-4xl">
           <h1 className="text-gray md:text-6xl text-lg font-medium">
             Welcome to{" "}
             <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#C0C0C0] via-[#9a9a9a] to-[#9a9a9a] animate-sparkle">
