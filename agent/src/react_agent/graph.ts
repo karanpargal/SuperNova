@@ -36,8 +36,8 @@ async function callModel(
 function routeModelOutput(state: typeof MessagesAnnotation.State): string {
   const messages = state.messages;
   const lastMessage = messages[messages.length - 1];
-  const userQuery =
-    messages.find((m) => "role" in m && m.role === "user")?.content || "";
+  // const userQuery =
+  //   messages.find((m) => "role" in m && m.role === "user")?.content || "";
 
   // If the message contains a response but needs to continue processing
   if (

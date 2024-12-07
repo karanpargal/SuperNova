@@ -113,52 +113,43 @@ export class BotAccountService {
     debug("[mintPKP] keyId: %s", keyId);
     const mintCost = await contractClient.pkpNftContract.read.mintCost();
     debug("[mintPKP] mintCost:", mintCost);
-    //APPROACH 1
-    // const {
-    //   tx: claimTx,
-    //   res: claimTxReceipt,
-    //   tokenId: pkpTokenId,
-    // } = await contractClient.pkpNftContractUtils.write.claimAndMint(
-    //   derivedKeyId,
-    //   claim.signatures,
-    //   {
-    //     value: mintCost,
-    //     gasLimit: "1000000",
-    //     gasPrice: "10000000000",
-    //   }
-    // );
-    // debug("[mintPKP] claimTx: ", claimTx);
-    // debug("[mintPKP] PKP claim receipt: %O", claimTxReceipt);
-    // const pkpInfo = await getPkpInfoFromMintReceipt(
-    //   claimTxReceipt,
-    //   this.litContracts
-    // );
-    // debug("[mintPKP] pkpInfo:", pkpInfo);
-    // const addPermittedAuthMethodRes1 =
-    //   await this.litContracts.addPermittedAuthMethod({
-    //     pkpTokenId: pkpInfo.tokenId,
-    //     authMethodScopes: [
-    //       AUTH_METHOD_SCOPE.SignAnything,
-    //       AUTH_METHOD_SCOPE.PersonalSign,
-    //     ],
-    //     authMethodType: AUTH_METHOD_TYPE.LitAction,
-    //     authMethodId: bs58Decode(ipfsHash),
-    //   });
-    // debug("[mintPKP] addPermittedAuthMethod-1: %O", addPermittedAuthMethodRes1);
-    // const addPermittedAuthMethodRes2 =
-    //   await this.litContracts.addPermittedAuthMethod({
-    //     pkpTokenId: pkpInfo.tokenId,
-    //     authMethodScopes: [
-    //       AUTH_METHOD_SCOPE.SignAnything,
-    //       AUTH_METHOD_SCOPE.PersonalSign,
-    //     ],
-    //     authMethodType: BigNumber.from(
-    //       hashString(this.CUSTOM_AUTH_TYPE)
-    //     ).toNumber(),
-    //     authMethodId: hashString(keyId),
-    //   });
-    // debug("[mintPKP] addPermittedAuthMethod-2: %O", addPermittedAuthMethodRes2);
-    //APPROACH 2
+
+    console.log(
+      "data:",
+      {
+        derivedKeyId,
+        signatures: claim.signatures,
+        keyType: 2,
+      },
+      {
+        keyType: 2,
+        permittedIpfsCIDs: [],
+        permittedIpfsCIDScopes: [],
+        permittedAddresses: [],
+        permittedAddressScopes: [],
+        permittedAuthMethodTypes: [
+          BigNumber.from(hashString(this.CUSTOM_AUTH_TYPE)),
+          BigNumber.from(AUTH_METHOD_TYPE.LitAction),
+        ],
+        permittedAuthMethodIds: [
+          hashString(keyId),
+          utils.arrayify(bs58Decode(ipfsHash)),
+        ],
+        permittedAuthMethodPubkeys: [`0x`, `0x`],
+        permittedAuthMethodScopes: [
+          [
+            BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
+            BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),
+          ],
+          [
+            BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
+            BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),
+          ],
+        ],
+        addPkpEthAddressAsPermittedAddress: true,
+        sendPkpToItself: true,
+      }
+    );
     const claimTx =
       await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethodsWithTypes(
         {
@@ -198,31 +189,9 @@ export class BotAccountService {
           value: mintCost,
           gasLimit: "100000000",
         }
-        // [
-        //   {
-        //     id: hashString(keyId),
-        //     type: BigNumber.from(
-        //       ethers.utils.keccak256(
-        //         Buffer.from(this.CUSTOM_AUTH_TYPE, "utf-8")
-        //       )
-        //     ),
-        //     scopes: [
-        //       BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
-        //       BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),
-        //     ],
-        //   },
-        //   {
-        //     id: bs58Decode(ipfsHash),
-        //     type: BigNumber.from(AUTH_METHOD_TYPE.LitAction),
-        //     scopes: [
-        //       BigNumber.from(AUTH_METHOD_SCOPE.SignAnything),
-        //       BigNumber.from(AUTH_METHOD_SCOPE.PersonalSign),
-        //     ],
-        //   },
-        // ]
       );
-    debug("[mintPKP] claimTx: %O", claimTx);
-    // Find the event that contains the token ID
+
+    debug("[mintPKP] PKP claim transaction: %O", claimTx);
     const claimTxReceipt = await claimTx.wait(1);
     debug("[mintPKP] claimTxReceipt: %O", claimTxReceipt);
     const pkpInfo = await getPkpInfoFromMintReceipt(

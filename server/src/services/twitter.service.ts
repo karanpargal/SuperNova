@@ -16,11 +16,6 @@ export class TwitterService {
   }
 
   async login(): Promise<string> {
-    // const authUrl = this.client.generateAuthURL({
-    //   state: this.STATE,
-    //   code_challenge: "code_challenge",
-    //   code_challenge_method: "plain",
-    // });
     const authUrl = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${process.env.TWITTER_CLIENT_ID}&redirect_uri=${process.env.TWITTER_CALLBACK_URL}&scope=tweet.read+users.read+offline.access&state=${process.env.STATE}&code_challenge=challenge&code_challenge_method=plain`;
     return authUrl;
   }
@@ -38,7 +33,7 @@ export class TwitterService {
       params.append("client_id", process.env.TWITTER_CLIENT_ID!);
       params.append("code_verifier", "challenge");
 
-      const res = await fetch(`https://api.x.com/2/oauth2/token`, {
+      const res = await fetch(`https://api.twitter.com/2/oauth2/token`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -91,17 +86,22 @@ export class TwitterService {
       username: "testuser",
     };
     try {
-      const res = await fetch("https://api.x.com/2/users/me", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      // const res = await fetch("https://api.twitter.com/2/users/me", {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`,
+      //   },
+      // });
 
-      if (res.ok) {
-        const userResponse = await res.json();
-        return userResponse.data;
-      }
-      return undefined;
+      // if (res.ok) {
+      //   const userResponse = await res.json();
+      //   return userResponse.data;
+      // }
+      // return undefined;
+      return {
+        id: "1234567890",
+        name: "Test User",
+        username: "testuser",
+      };
     } catch (err) {
       console.error("twt err:", err);
     }
