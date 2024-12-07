@@ -59,9 +59,9 @@ export class BotAccountService {
     if (pkpExists) {
       debug("[mintPKP] PKP already exists IN DB: %O", pkpExists);
       return {
-        pkpEthAddress: "pkpExists.address",
+        pkpEthAddress: pkpExists.pkp_eth_address,
         litNetwork: this.litService.litNetwork,
-        keyId: `${ipfsHash}_${userId}`,
+        keyId: pkpExists.key_id,
       };
     }
     debug(

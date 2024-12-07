@@ -75,7 +75,7 @@ export class LitService {
           chainId,
           walletAddress: await signer.getAddress(),
           nonce: generateIdSync(16, "0123456789"),
-          domain: "collab.land",
+          domain: "supranova.wtf",
           statement,
           litNodeClient: this.litNodeClient,
           version: "1",
@@ -101,7 +101,7 @@ export class LitService {
   async generateAuthSig(
     signer: Signer,
     chainId = 1,
-    uri = "https://collab.land",
+    uri = "https://supranova.wtf",
     resources?: string[],
     expirationTime?: string,
     statement = "Generate a signature for the PKP"
@@ -117,7 +117,7 @@ export class LitService {
       address: await signer.getAddress(),
       chainId,
       uri,
-      domain: "collab.land",
+      domain: "supranova.wtf",
       resources: resources ?? [],
       expirationTime:
         expirationTime ?? new Date(Date.now() + 5 * 60 * 1000).toISOString(),

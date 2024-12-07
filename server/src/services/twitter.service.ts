@@ -93,22 +93,17 @@ export class TwitterService {
     }
     debug("[getUserData] _userId not mentioned, invoking twitter API...");
     try {
-      // const res = await fetch("https://api.twitter.com/2/users/me", {
-      //   headers: {
-      //     Authorization: `Bearer ${accessToken}`,
-      //   },
-      // });
+      const res = await fetch("https://api.twitter.com/2/users/me", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-      // if (res.ok) {
-      //   const userResponse = await res.json();
-      //   return userResponse.data;
-      // }
-      // return undefined;
-      return {
-        id: "1234567890",
-        name: "Test User",
-        username: "testuser",
-      };
+      if (res.ok) {
+        const userResponse = await res.json();
+        return userResponse.data;
+      }
+      return undefined;
     } catch (err) {
       console.error("Twitter API error:", err);
     }

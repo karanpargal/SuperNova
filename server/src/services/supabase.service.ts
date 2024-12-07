@@ -56,7 +56,7 @@ export class SupabaseService {
     if (error) {
       console.error("[supabaseError]: %O", error);
     }
-    return data?.[0];
+    return data?.[0] as pkpSchema | undefined;
   };
 
   public savePkp = async ({
