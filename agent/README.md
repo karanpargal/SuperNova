@@ -1,149 +1,163 @@
-# Crypto Trading Telegram Bot
+# LangGraph ReAct Agent
 
-A Telegram bot powered by LangGraph.js that monitors trending cryptocurrencies and executes trades based on user interactions.
-
-## Features
-
-- 🔍 Monitors trending tokens via CoinGecko
-- 💡 Analyzes trading opportunities
-- 💰 Executes transactions on Polygon testnet
-- 🤖 Uses ReAct agent pattern for decision making
+A TypeScript-based ReAct agent built with LangGraph.js for handling token transfers and minting operations across multiple blockchains.
 
 ## Architecture
 
-**Flow Diagram:**
+```mermaid:agent/README.md
+sequenceDiagram
+    participant U as User
+    participant S as Server
+    participant A as Agent
+    participant M as Model
+    participant T as Tools
+    
+    U->>S: POST /v1/invoke
+    S->>A: Initialize Graph
+    A->>M: Process Input
+    M->>A: Generate Response
+    A->>T: Execute Tools
+    T->>A: Return Results 
+    A->>S: Final Response
+    S->>U: JSON Response
+```
+
+## Core Components
+
+### State Graph Flow
 
 ```mermaid
 graph TD
-    A[User Query] --> B[ReAct Agent]
-    B --> C{Decision Loop}
-    C -->|Get Trends| D[CoinGecko Tool]
-    C -->|Get Wallet| E[Wallet Address Tool]
-    C -->|Get Contract| F[Contract Address Tool]
-    C -->|Analyze| G[Decide Token Tool]
-    C -->|Execute| H[Transaction Tool]
-    C -->|Complete| I[Final Response]
-    D & E & F & G --> C
-    H --> I
-```
-
-**Agent Graph:**
-
-```mermaid
-graph LR
     A[Start] --> B[Call Model]
     B --> C{Route Output}
-    C -->|Need Tools| D[Execute Tools]
+    C -->|Tool Required| D[Execute Tools]
     D --> B
     C -->|Complete| E[End]
 ```
 
-## Tools
+### Tools Architecture
 
-1. **CoinGeckoTrendingTool**: Fetches top trending tokens
-2. **GetWalletAddressTool**: Gets bot's wallet address
-3. **GetContractAddressTool**: Fetches token contract addresses
-4. **DecideTokenTool**: Analyzes and selects tokens to trade
-5. **ExecuteTransactionTool**: Executes trades on Polygon testnet
+```mermaid
+classDiagram
+    class Tool {
+        +name: string
+        +description: string
+        #_call(input: string): Promise<string>
+    }
+    class ExecuteMoveTransactionTool {
+        +name: execute_move_transaction
+        +description: string
+    }
+    class ExecuteMintTransactionTool {
+        +name: execute_mint_transaction 
+        +description: string
+    }
+    Tool <|-- ExecuteMoveTransactionTool
+    Tool <|-- ExecuteMintTransactionTool
+```
 
 ## Setup
 
-### Option 1: Local Setup
-
-1. Clone the repository:
+1. Install dependencies:
 
 ```bash
-git clone <repository-url>
-cd <repository-name>
+pnpm install
 ```
 
-2. Install dependencies:
+2. Create `.env` file based on `.env.example`:
+
+```typescript:agent/.env.example
+startLine: 1
+endLine: 15
+```
+
+3. Build the project:
 
 ```bash
-yarn install
+pnpm build
 ```
-
-3. Configure environment:
-
-```bash
-cp .env.example .env
-```
-
-4. Add required API keys to `.env`:
-
-```
-ANTHROPIC_API_KEY=xxx  # or OPENAI_API_KEY
-TG_BOT_TOKEN=xxx
-```
-
-5. Run tests:
-
-```bash
-yarn test
-```
-
-### Option 2: Docker Setup
-
-Run the API using Docker Compose:
-
-```bash
-# Build and start the services
-docker compose up --build
-
-# The API will be available at http://localhost:8123
-```
-
-Docker Compose will:
-
-- Start the LangGraph API server
-- Set up Redis for state management
-- Configure Postgres for data persistence
-- Handle environment variables from .env file
-
-To stop the services:
-
-```bash
-docker compose down
-```
-
-## Usage
-
-The bot follows this workflow:
-
-1. Monitors trending tokens:
-
-   - Fetches wallet address
-   - Gets trending tokens from CoinGecko
-   - Retrieves contract addresses
-
-2. When user expresses trading intent:
-   - Analyzes message context
-   - Uses DecideToken tool
-   - Executes transaction
-   - Returns transaction hash
 
 ## Development
 
-- Uses TypeScript
-- Built on LangGraph.js
-- Integration with LangSmith for tracing
-- Hot reload support for local development
+The agent uses a state graph architecture powered by LangGraph.js. Key files:
 
-## Testing
+- **Graph Definition**: See `src/react_agent/graph.ts`
+- **Tools**: Located in `src/react_agent/tools.ts`
+- **Configuration**: Managed in `src/react_agent/configuration.ts`
+
+### Running Tests
 
 ```bash
 # Unit tests
-yarn test
+pnpm test
 
 # Integration tests
-yarn test:int
+pnpm test:int
+```
+
+## Docker Deployment
+
+1. Build image:
+
+```bash
+docker build -t react-agent .
+```
+
+2. Run with docker-compose:
+
+```bash
+docker-compose up
+```
+
+The service exposes:
+- API endpoint: `http://localhost:8123`
+- Redis: Port 6379
+- Postgres: Port 5432
+
+## API Usage
+
+### Invoke Agent
+
+```typescript
+POST /v1/invoke
+
+{
+  "message": "I want to transfer 1 token to 0x123...",
+  "threadId": "unique-thread-id"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Transaction submitted: {...}"
+}
 ```
 
 ## Environment Variables
 
 Required environment variables:
+- `LANGCHAIN_API_KEY`: LangChain API key
+- `ANTHROPIC_API_KEY`/`OPENAI_API_KEY`: LLM provider key
+- `TG_BOT_TOKEN`: Telegram bot token (optional)
 
-- `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`: LLM API key
+## Project Structure
+
+```
+.
+├── src/
+│   ├── react_agent/
+│   │   ├── graph.ts          # Core agent logic
+│   │   ├── tools.ts          # Available tools
+│   │   ├── configuration.ts  # Agent config
+│   │   └── prompts.ts        # System prompts
+│   └── index.ts              # Express server
+├── tests/
+│   ├── unit/
+│   └── integration/
+└── docker-compose.yml        # Container orchestration
+```
 
 ## Contributing
 
@@ -155,4 +169,35 @@ Required environment variables:
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License - see LICENSE file for details.
+
+## Dependencies
+
+Key dependencies:
+
+```typescript:agent/package.json
+startLine: 19
+endLine: 33
+```
+
+## Security
+
+- Environment variables are properly handled through dotenv
+- Docker secrets management for production
+- Input validation on all API endpoints
+- Rate limiting on production endpoints
+
+## Error Handling
+
+The agent implements comprehensive error handling:
+- API errors with proper status codes
+- Transaction failures with detailed messages
+- Model errors with graceful degradation
+- Network timeouts with retries
+
+## Performance Considerations
+
+- Redis caching for repeated queries
+- Postgres for persistent storage
+- Docker volume management
+- Health checks on all services

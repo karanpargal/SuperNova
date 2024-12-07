@@ -47,6 +47,9 @@ importers:
       form-data:
         specifier: ^4.0.1
         version: 4.0.1
+      grammy:
+        specifier: ^1.33.0
+        version: 1.33.0
       siwe:
         specifier: ^2.3.2
         version: 2.3.2(ethers@5.7.0)
@@ -180,6 +183,9 @@ packages:
 
   '@ethersproject/wordlists@5.7.0':
     resolution: {integrity: sha512-S2TFNJNfHWVHNE6cNDjbVlZ6MgE17MIxMbMg2zv3wn+3XSJGosL1m9ZVv3GXCf/2ymSsQ+hRI5IzoMJTG6aoVA==}
+
+  '@grammyjs/types@3.17.0':
+    resolution: {integrity: sha512-e8AR3xQwRAFX248E7Qw/7mIu1OzvoXloJzOBJVtuPKzzL7tGkn5trZAdZUBgGViVQg5ZwVS/x9N2nRrcyH/DfA==}
 
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
@@ -955,6 +961,10 @@ packages:
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
+
+  grammy@1.33.0:
+    resolution: {integrity: sha512-kvQuIBtiPcqNGntsVevjXYBMByIJ3PtOP7swr1zbCg6xY+dNX76f4VX5auKuJNI/sflexPr3L4wNwbTJHu9ocA==}
+    engines: {node: ^12.20.0 || >=14.13.1}
 
   h3@1.13.0:
     resolution: {integrity: sha512-vFEAu/yf8UMUcB4s43OaDaigcqpQd14yanmOsn+NcRX3/guSKncyE2rOYhq8RIchgJrPSs/QiIddnTTR1ddiAg==}
@@ -2009,6 +2019,8 @@ snapshots:
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
       '@ethersproject/strings': 5.7.0
+
+  '@grammyjs/types@3.17.0': {}
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
@@ -3460,6 +3472,16 @@ snapshots:
       is-glob: 4.0.3
 
   gopd@1.2.0: {}
+
+  grammy@1.33.0:
+    dependencies:
+      '@grammyjs/types': 3.17.0
+      abort-controller: 3.0.0
+      debug: 4.4.0(supports-color@5.5.0)
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
 
   h3@1.13.0:
     dependencies:

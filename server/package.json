@@ -25,6 +25,7 @@
     "ethers": "5.7.0",
     "express": "^4.21.2",
     "form-data": "^4.0.1",
+    "grammy": "^1.33.0",
     "siwe": "^2.3.2",
     "twitter-api-sdk": "^1.2.1"
   },

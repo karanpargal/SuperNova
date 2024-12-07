@@ -93,7 +93,7 @@ app.post("/mint-token", async (req: Request, res: Response) => {
           req.body.dataToEncryptHash ?? req.body.data_to_encrypt_hash,
         tokenName: req.body.name,
         tokenSymbol: req.body.symbol,
-        tokenType: req.body.symbol + "Coin",
+        tokenType: String(Math.floor(Math.random() * 5)),
         tokenApiUrl: process.env.TOKEN_API_URL!,
       },
       req.body.userId
@@ -106,6 +106,41 @@ app.post("/mint-token", async (req: Request, res: Response) => {
     const savedToken = await supaService.saveToken(tokenDetails);
     console.log("savedToken: %O", savedToken);
     res.status(200).json(tokenDetails);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/get-balance", async (req: Request, res: Response) => {
+  try {
+    const litService = new LitService();
+    const supaService = new SupabaseService();
+    console.log("init litService");
+    await litService.init();
+    console.log("init botService");
+    const botService = new BotAccountService(litService);
+    console.log("checking account");
+    const mintResult = await botService.mintPKP(
+      req.body.accessToken,
+      req.body.ipfsHash,
+      req.body.userId
+    );
+    console.log("mintResult: %O", mintResult);
+    const litResponse = await botService.executeLitAction(
+      req.body.accessToken,
+      req.body.executeIpfsHash,
+      {
+        method: "getBalance",
+        ciphertext: req.body.ciphertext,
+        dataToEncryptHash:
+          req.body.dataToEncryptHash ?? req.body.data_to_encrypt_hash,
+      },
+      req.body.userId
+    );
+    console.log("litResponse: %O", litResponse);
+    const balanceResponse = JSON.parse(litResponse.response as string);
+    console.log("balanceResponse: %O", balanceResponse);
+    res.status(200).json(balanceResponse);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
