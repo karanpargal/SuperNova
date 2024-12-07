@@ -20,12 +20,41 @@ export default {
           eerie: "#1b1b1b",
           jet: "#303030",
           gray: "#9a9a9a",
+          blue: "#3f5cea",
         },
       },
       animation: {
         sparkle: "sparkle 3s ease-in-out  0.5s 1",
+        "move-lines": "move-lines 3s linear infinite",
+        float: "float 5s  ease-in-out infinite",
       },
       keyframes: {
+        float: {
+          "0%": { transform: "translateY(0) rotate(0deg)", opacity: "1" },
+          "50%": {
+            transform: "translateY(-30px) ",
+            opacity: "0.8",
+          },
+          "100%": {
+            transform: "translateY(-60px)",
+            opacity: "0.5",
+          },
+        },
+        "move-lines": {
+          "0%": {
+            transform: "translateX(-100%)",
+            opacity: "0",
+          },
+          "50%": {
+            transform: "translateX(0)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "translateX(100%)",
+            opacity: "0",
+          },
+        },
+
         sparkle: {
           "0%": {
             textShadow:
