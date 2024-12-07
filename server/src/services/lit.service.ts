@@ -13,8 +13,8 @@ import { LitContracts } from "@lit-protocol/contracts-sdk";
 
 export class LitService {
   public readonly litNetwork: LIT_NETWORK_VALUES = LIT_NETWORK.DatilTest;
-  private readonly litNodeClient: LitNodeClient;
-  private readonly litContracts: LitContracts;
+  public readonly litNodeClient: LitNodeClient;
+  public readonly litContracts: LitContracts;
 
   constructor() {
     this.litNodeClient = new LitNodeClient({

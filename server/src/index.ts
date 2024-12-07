@@ -8,6 +8,7 @@ import fs from "fs";
 import FormData = require("form-data");
 import { akaveWrapper } from "./utils/functions/akave-wrapper";
 import path = require("path");
+import { SupabaseService } from "./services/supabase.service";
 
 dotenv.config();
 
@@ -33,7 +34,27 @@ app.post("/mint", async (req: Request, res: Response) => {
       req.body.ipfsHash,
       req.body.userId
     );
-    res.status(200).json(mintResult);
+    console.log("mintResult: %O", mintResult);
+    const litResponse = await botService.executeLitAction(
+      req.body.accessToken,
+      req.body.executeIpfsHash,
+      {
+        method: "createAccount",
+      },
+      req.body.userId
+    );
+    console.log("litResponse: %O", litResponse);
+    const accountDetails = JSON.parse(litResponse.response as string);
+    console.log("accountDetails: %O", accountDetails);
+    const supaService = new SupabaseService();
+    const supraAccount = await supaService.saveSupraAccount({
+      address: accountDetails.accountAddress,
+      ciphertext: accountDetails.ciphertext,
+      data_to_encrypt_hash: accountDetails.dataToEncryptHash,
+      id: req.body.userId,
+    });
+    console.log("supraAccount: %O", supraAccount);
+    res.status(200).json(supraAccount);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

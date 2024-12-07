@@ -9,7 +9,7 @@ import {
 } from "@lit-protocol/constants";
 import { BigNumber, ethers, providers, utils } from "ethers";
 import { LitContracts } from "@lit-protocol/contracts-sdk";
-import { JsonExecutionSdkParams } from "@lit-protocol/types";
+import { ExecuteJsResponse, JsonExecutionSdkParams } from "@lit-protocol/types";
 import { LitActionResource, LitPKPResource } from "@lit-protocol/auth-helpers";
 import { LitService } from "./lit.service";
 import {
@@ -215,6 +215,7 @@ export class BotAccountService {
       key_id: keyId,
       pkp_eth_address: pkpEthAddress,
       token_id: pkpInfo.tokenId!,
+      pkp_public_key: publicKey,
     });
     debug("[mintPKP] saved pkp in Supabase: %O", res);
     return {
@@ -224,5 +225,77 @@ export class BotAccountService {
       receipt: claimTxReceipt,
       litNetwork: this.litService.litNetwork,
     };
+  }
+
+  async executeLitAction(
+    accessToken: string,
+    executeIpfsHash: string,
+    jsParams: Record<string, string>,
+    _userId?: string
+  ): Promise<ExecuteJsResponse> {
+    const userData = await this.twitterService.getUserData(
+      accessToken,
+      _userId
+    );
+    if (!userData) {
+      throw new Error("Failed to get user data");
+    }
+    const userId = userData.id;
+    debug("[executeLitAction] userId: %s", userId);
+
+    const pkpExists = await this.supabaseService.getPkp(userId);
+    if (!pkpExists) {
+      debug("[executeLitAction] PKP does not exist in DB");
+      throw new Error("PKP does not exist in DB");
+    }
+    const authIpfsHash = pkpExists.key_id.split("_")[0];
+    debug("[executeLitAction] authIpfsHash: %s", authIpfsHash);
+    await this.litService.init();
+    const nodeClient = await this.litService.getLitClient();
+    const minter = await this.litService.getMinterWallet();
+    const capacityDelegationAuthSig =
+      await this.litService.createCapacityDelegationAuthSig(
+        pkpExists.pkp_eth_address,
+        minter
+      );
+    const sessionSigs = await nodeClient.getLitActionSessionSigs({
+      chain: "ethereum",
+      pkpPublicKey: pkpExists.pkp_public_key,
+      litActionIpfsId: authIpfsHash,
+      resourceAbilityRequests: [
+        {
+          resource: new LitPKPResource("*"),
+          ability: LIT_ABILITY.PKPSigning,
+        },
+        {
+          resource: new LitActionResource("*"),
+          ability: LIT_ABILITY.LitActionExecution,
+        },
+      ],
+      capabilityAuthSigs: [capacityDelegationAuthSig],
+      jsParams: {
+        method: "signSessionSigs",
+        publicKey: pkpExists.pkp_public_key,
+        isDev: true,
+        overrideUserID: userId,
+        accessToken,
+      },
+    });
+    debug("[executeLitAction] PKP sessionSigs: %O", sessionSigs);
+    const params: JsonExecutionSdkParams = {
+      sessionSigs,
+      ipfsId: executeIpfsHash,
+      jsParams: {
+        accessToken,
+        isDev: true,
+        overrideUserID: userId,
+        ipfsCID: executeIpfsHash,
+        ...jsParams,
+      },
+    };
+    debug("[executeLitAction] Lit action params: %O", params);
+    const response = await nodeClient.executeJs(params);
+    debug("[executeLitAction] Lit action response: %O", response);
+    return response;
   }
 }

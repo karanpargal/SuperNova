@@ -7,6 +7,15 @@ export type pkpSchema = {
   created_at: string;
   token_id: string;
   key_id: string;
+  pkp_public_key: string;
+};
+
+export type supraAccountSchema = {
+  id: string;
+  created_at: string;
+  ciphertext: string;
+  address: string;
+  data_to_encrypt_hash: string;
 };
 
 export class SupabaseService {
@@ -64,6 +73,7 @@ export class SupabaseService {
     key_id,
     pkp_eth_address,
     token_id,
+    pkp_public_key,
   }: Omit<pkpSchema, "created_at">) => {
     const supabase = SupabaseService.getSupabase();
     const { data, error } = await supabase
@@ -73,6 +83,29 @@ export class SupabaseService {
         key_id,
         pkp_eth_address,
         token_id,
+        pkp_public_key,
+      })
+      .select();
+    if (error) {
+      console.error("[supabaseError]: %O", error);
+    }
+    return data?.[0];
+  };
+
+  public saveSupraAccount = async ({
+    id,
+    ciphertext,
+    address,
+    data_to_encrypt_hash,
+  }: Omit<supraAccountSchema, "created_at">) => {
+    const supabase = SupabaseService.getSupabase();
+    const { data, error } = await supabase
+      .from("supra_accounts")
+      .insert({
+        id,
+        ciphertext,
+        address,
+        data_to_encrypt_hash,
       })
       .select();
     if (error) {
