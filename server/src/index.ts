@@ -111,7 +111,7 @@ app.post("/mint-token", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/get-balance", async (req: Request, res: Response) => {
+app.post("/claim-token", async (req: Request, res: Response) => {
   try {
     const litService = new LitService();
     const supaService = new SupabaseService();
@@ -130,17 +130,19 @@ app.post("/get-balance", async (req: Request, res: Response) => {
       req.body.accessToken,
       req.body.executeIpfsHash,
       {
-        method: "getBalance",
+        method: "claimToken",
         ciphertext: req.body.ciphertext,
         dataToEncryptHash:
           req.body.dataToEncryptHash ?? req.body.data_to_encrypt_hash,
+        tokenType: String(Math.floor(Math.random() * 5)),
+        tokenApiUrl: process.env.TOKEN_API_URL!,
       },
       req.body.userId
     );
     console.log("litResponse: %O", litResponse);
-    const balanceResponse = JSON.parse(litResponse.response as string);
-    console.log("balanceResponse: %O", balanceResponse);
-    res.status(200).json(balanceResponse);
+    const claimResponse = JSON.parse(litResponse.response as string);
+    console.log("claimResponse: %O", claimResponse);
+    res.status(200).json(claimResponse);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
