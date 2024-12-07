@@ -4,3 +4,6 @@
 [submodule "supra-sdk"]
 	path = supra-sdk
 	url = https://github.com/Srivastava57Harsh/supra-sdk
+[submodule "supra-contracts"]
+	path = supra-contracts
+	url = https://github.com/Srivastava57Harsh/supra-contracts
