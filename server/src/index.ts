@@ -105,7 +105,10 @@ app.post("/mint-token", async (req: Request, res: Response) => {
     console.log("tokenDetails: %O", tokenDetails);
     const savedToken = await supaService.saveToken(tokenDetails);
     console.log("savedToken: %O", savedToken);
-    res.status(200).json(tokenDetails);
+    Promise.all([botService.tweetToken(tokenDetails)]).catch((e) =>
+      console.error(e)
+    );
+    res.status(200).json(savedToken);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

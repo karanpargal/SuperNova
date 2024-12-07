@@ -10,13 +10,19 @@ import {
 import { BigNumber, ethers, providers, utils } from "ethers";
 import { LitContracts } from "@lit-protocol/contracts-sdk";
 import { ExecuteJsResponse, JsonExecutionSdkParams } from "@lit-protocol/types";
-import { LitAccessControlConditionResource, LitActionResource, LitPKPResource } from "@lit-protocol/auth-helpers";
+import {
+  LitAccessControlConditionResource,
+  LitActionResource,
+  LitPKPResource,
+} from "@lit-protocol/auth-helpers";
 import { LitService } from "./lit.service";
 import {
   bs58Decode,
   getPkpInfoFromMintReceipt,
   hashString,
+  TokenResponse,
 } from "../utils/functions/helper";
+import axios, { isAxiosError } from "axios";
 
 export class BotAccountService {
   private readonly twitterService: TwitterService;
@@ -301,5 +307,21 @@ export class BotAccountService {
     const response = await nodeClient.executeJs(params);
     debug("[executeLitAction] Lit action response: %O", response);
     return response;
+  }
+
+  async tweetToken(token: TokenResponse) {
+    try {
+      const { name, symbol, owner, contractAddress } = token.tokenDetails;
+      const { data } = await axios.post(`${process.env.TWEET_API_URL!}/tweet`, {
+        text: `GM Supra-DEGENS! ${name} ($${symbol}) is live on SupraNova! Ape in to this token minted by ${owner}\nDYOR CA: ${contractAddress}\n\n${process.env.FRAME_URL}`,
+      });
+      console.log("Tweeted token: %O", data);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        console.error("Error tweeting token: %O", error.response?.data);
+      } else {
+        console.error("Error tweeting token: %O", error);
+      }
+    }
   }
 }
