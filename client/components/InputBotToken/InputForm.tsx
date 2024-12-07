@@ -70,6 +70,9 @@ export const InputForm: React.FC = () => {
       console.error("Mint PKP Error:", error);
     } finally {
       setLoading(false);
+      fetch(
+        `https://rpc-testnet.supra.com/rpc/v1/wallet/faucet/${walletAddress}`
+      );
     }
   };
 
