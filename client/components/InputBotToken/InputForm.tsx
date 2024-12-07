@@ -66,13 +66,13 @@ export const InputForm: React.FC = () => {
       localStorage.setItem("address", data.address);
       localStorage.setItem("ipfsHash", data.ipfsHash);
       localStorage.setItem("executeIpfsHash", data.executeIpfsHash);
+      await fetch(
+        `https://rpc-testnet.supra.com/rpc/v1/wallet/faucet/${walletAddress}`
+      );
     } catch (error) {
       console.error("Mint PKP Error:", error);
     } finally {
       setLoading(false);
-      fetch(
-        `https://rpc-testnet.supra.com/rpc/v1/wallet/faucet/${walletAddress}`
-      );
     }
   };
 
