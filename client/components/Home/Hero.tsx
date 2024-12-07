@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { v4 as uuidv4 } from "uuid";
 import { useToken } from "@/utils/context/TokenContext";
+import Link from "next/link";
 
 export const Hero: React.FC = () => {
   const [loginStatus, setLoginStatus] = useState(false);
@@ -15,7 +16,11 @@ export const Hero: React.FC = () => {
         "_blank",
         "width=600,height=700"
       );
+
       setLoginStatus(true);
+      const userId = uuidv4();
+      console.log(userId);
+      localStorage.setItem("userId", userId);
     } catch (error) {
       console.error(error);
     } finally {
@@ -55,13 +60,15 @@ export const Hero: React.FC = () => {
         </p>
       </div>
       {hasToken ? (
-        <Button className="relative inline-flex items-center justify-center p-4 px-5 py-6 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 w-96 mx-auto mt-10">
-          <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-700"></span>
-          <span className="absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 bg-pink-500 rounded-full opacity-30 group-hover:rotate-90 ease"></span>
-          <span className="relative text-white font-medium text-base">
-            Launch App
-          </span>
-        </Button>
+        <Link href="/bot-token">
+          <Button className="relative inline-flex items-center justify-center p-4 px-5 py-6 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 w-96 mx-auto mt-10">
+            <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-700"></span>
+            <span className="absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 bg-pink-500 rounded-full opacity-30 group-hover:rotate-90 ease"></span>
+            <span className="relative text-white font-medium text-base">
+              Launch App
+            </span>
+          </Button>
+        </Link>
       ) : (
         <Button
           onClick={() => {

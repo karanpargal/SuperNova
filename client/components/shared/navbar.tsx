@@ -27,6 +27,9 @@ export const Navbar: React.FC = () => {
       if (e.origin !== `${process.env.NEXT_PUBLIC_API_URL}`) return;
 
       const { token } = e.data;
+      const userId = uuidv4();
+
+      localStorage.setItem("userId", userId);
       if (token) {
         localStorage.setItem("token", token);
         setHasToken(true);

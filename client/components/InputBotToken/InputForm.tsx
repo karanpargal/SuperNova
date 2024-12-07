@@ -55,7 +55,7 @@ export const InputForm: React.FC = () => {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    className="w-full text-left border-app-jet border bg-app-eerie text-app-purple placeholder:text-app-gray/60 p-2"
+                    className="w-full text-left border-app-jet border bg-app-eerie text-white placeholder:text-app-gray/60 p-2"
                     placeholder=""
                     {...field}
                   />
@@ -75,7 +75,7 @@ export const InputForm: React.FC = () => {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    className="w-full text-left border-app-jet border bg-app-eerie text-app-purple placeholder:text-app-gray/60 p-2"
+                    className="w-full text-left border-app-jet text-white border bg-app-eerie placeholder:text-app-gray/60 p-2"
                     placeholder="0x1234567890ABCDEF"
                     {...field}
                   />
