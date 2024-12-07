@@ -18,7 +18,6 @@ export const Hero: React.FC = () => {
       );
 
       const userId = uuidv4();
-      console.log(userId);
       localStorage.setItem("userId", userId);
     } catch (error) {
       console.error(error);
@@ -32,8 +31,6 @@ export const Hero: React.FC = () => {
 
       const { token } = e.data;
       if (token) {
-        console.log("Token:", uuidv4());
-        localStorage.setItem("userId", uuidv4());
         localStorage.setItem("token", token);
         setHasToken(true);
       }

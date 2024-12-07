@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
+import { CopyIcon } from "lucide-react";
 
 const formSchema = z.object({
   botToken: z.string().min(2, {
@@ -46,20 +46,21 @@ export const InputForm: React.FC = () => {
         body: JSON.stringify({
           accessToken: localStorage.getItem("token"),
           ipfsHash: "QmP227jaBxfD7CVdx6KEvhVHGuzg2x2L2hK7BW5BLZdBVv",
+          executeIpfsHash: "QmcWfdYzZvU51PXNVa5BxVSXAA2QA76pdwon87Y9iiGaxd",
           userId: localStorage.getItem("userId"),
         }),
       });
       const data = await response.json();
-      setWalletAddress(data.pkpEthAddress);
-      localStorage.setItem("pkpEthAddress", data.pkpEthAddress);
+      setWalletAddress(data.address);
+      localStorage.setItem("address", data.address);
     } catch (error) {
       console.error("Mint PKP Error:", error);
     }
   };
 
   useEffect(() => {
-    if (localStorage.getItem("pkpEthAddress")) {
-      setWalletAddress(localStorage.getItem("pkpEthAddress")!);
+    if (localStorage.getItem("address")) {
+      setWalletAddress(localStorage.getItem("address")!);
     }
   }, []);
 
@@ -96,11 +97,20 @@ export const InputForm: React.FC = () => {
                 Wallet Address
               </FormLabel>
               <FormControl>
-                <Input
-                  className="w-full text-left border-app-jet border bg-app-eerie text-white placeholder:text-app-gray/60 p-2"
-                  value={walletAddress}
-                  disabled
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    className="w-full text-left border-app-jet border bg-app-eerie text-white placeholder:text-app-gray/60 p-2"
+                    value={walletAddress}
+                    disabled
+                  />
+                  <CopyIcon
+                    className="h-4 w-4 text-white"
+                    onClick={() => {
+                      navigator.clipboard.writeText(walletAddress);
+                      alert("Copied to clipboard");
+                    }}
+                  />
+                </div>
               </FormControl>
             </FormItem>
           )}
@@ -108,6 +118,7 @@ export const InputForm: React.FC = () => {
           <div className="flex flex-wrap md:flex-row flex-col md:gap-2">
             {!walletAddress && (
               <Button
+                type="button"
                 className="relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 md:w-96 w-64 mx-auto md:mt-10 mt-6"
                 onClick={() => {
                   handleMintPkp();

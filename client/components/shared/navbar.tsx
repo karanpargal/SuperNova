@@ -32,7 +32,6 @@ export const Navbar: React.FC = () => {
 
       localStorage.setItem("userId", userId);
       if (token) {
-        console.log("Token:", uuidv4());
         localStorage.setItem("userId", uuidv4());
         localStorage.setItem("token", token);
         setHasToken(true);
