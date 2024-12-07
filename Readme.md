@@ -27,7 +27,7 @@ This project enables seamless cross-chain lending and borrowing, allowing users 
 - **Agoric Orchestration** - Agoric’s Orchestration capability allows developers to easily build cross-chain interactions into existing applications or to create novel cross-chain-focused products.
 - **Keplr Wallet** - Keplr is a free, open-source, non-custodial wallet that allows users to interact with blockchain applications in the Cosmos ecosystem. It's available as a browser extension, mobile app, and webapp.
 
-## 🚩 What Problems APY-LO Solves
+## 🚩 What Problems SuperNova Solves
 - **Cross-Chain Lending and Borrowing** - Facilitates seamless asset utilization across multiple chains, enabling users to lend on one chain and borrow on others.
 - **Liquidity Optimization** - Provides up to 80% liquidity access, ensuring efficient use of user assets.
 - **Dynamic APY Management** - It adjusts interest rates based on pool liquidity, offering users the best possible returns.
