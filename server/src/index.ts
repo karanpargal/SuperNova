@@ -89,7 +89,7 @@ app.post("/akave/upload-lit-bundle", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/akave/upload-lit-bundle", async (req: Request, res: Response) => {
+app.post("/akave/download-lit-bundle", async (req: Request, res: Response) => {
   try {
     const { outputDir, fileName } = req.body;
     const response = await akaveWrapper(
@@ -98,7 +98,7 @@ app.post("/akave/upload-lit-bundle", async (req: Request, res: Response) => {
       null
     );
 
-    fs.writeFileSync(`./${outputDir}/${fileName}`, response.data);
+    fs.writeFileSync(`../actions/${outputDir}/${fileName}`, response);
 
     res.status(200).json({ message: "Download successful" });
   } catch (error: any) {
