@@ -128,11 +128,26 @@ export class SupabaseService {
   };
 
   public saveToken = async (token: TokenResponse) => {
+    const {
+      contractAddress,
+      tokenIdentifier,
+      tokenType,
+      initialSupply,
+      name,
+      owner,
+      symbol,
+    } = token.tokenDetails;
     const supabase = SupabaseService.getSupabase();
     const { data, error } = await supabase
       .from("tokens")
       .insert({
-        ...token.tokenDetails,
+        contract_address: contractAddress,
+        token_identifier: tokenIdentifier,
+        token_type: tokenType,
+        initial_supply: initialSupply,
+        name,
+        owner,
+        symbol,
       })
       .select();
     if (error) {
