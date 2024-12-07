@@ -52,3 +52,17 @@ export const getPkpInfoFromMintReceipt = async (
     ethAddress,
   };
 };
+
+export type TokenResponse = {
+    txHash: string;
+    result: string;
+    tokenDetails: {
+        tokenType: string;
+        name: string;
+        symbol: string;
+        initialSupply: number;
+        owner: string;
+        contractAddress: string;
+        tokenIdentifier: string;
+    }
+}

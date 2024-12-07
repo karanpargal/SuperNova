@@ -9,6 +9,7 @@ import FormData = require("form-data");
 import { akaveWrapper } from "./utils/functions/akave-wrapper";
 import path = require("path");
 import { SupabaseService } from "./services/supabase.service";
+import { TokenResponse } from "./utils/functions/helper";
 
 dotenv.config();
 
@@ -70,6 +71,7 @@ app.post("/get-account", async (req: Request, res: Response) => {
 app.post("/mint-token", async (req: Request, res: Response) => {
   try {
     const litService = new LitService();
+    const supaService = new SupabaseService();
     console.log("init litService");
     await litService.init();
     console.log("init botService");
@@ -97,8 +99,12 @@ app.post("/mint-token", async (req: Request, res: Response) => {
       req.body.userId
     );
     console.log("litResponse: %O", litResponse);
-    const tokenDetails = JSON.parse(litResponse.response as string);
+    const tokenDetails: TokenResponse = JSON.parse(
+      litResponse.response as string
+    );
     console.log("tokenDetails: %O", tokenDetails);
+    const savedToken = await supaService.saveToken(tokenDetails);
+    console.log("savedToken: %O", savedToken);
     res.status(200).json(tokenDetails);
   } catch (error: any) {
     res.status(500).json({ error: error.message });

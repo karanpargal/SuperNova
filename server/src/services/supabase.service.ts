@@ -1,5 +1,6 @@
 import { LIT_NETWORK_VALUES } from "@lit-protocol/constants";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { TokenResponse } from "../utils/functions/helper";
 
 export type pkpSchema = {
   id: string;
@@ -120,6 +121,20 @@ export class SupabaseService {
       .from("supra_accounts")
       .select("*")
       .eq("id", userId);
+    if (error) {
+      console.error("[supabaseError]: %O", error);
+    }
+    return data?.[0];
+  };
+
+  public saveToken = async (token: TokenResponse) => {
+    const supabase = SupabaseService.getSupabase();
+    const { data, error } = await supabase
+      .from("tokens")
+      .insert({
+        ...token.tokenDetails,
+      })
+      .select();
     if (error) {
       console.error("[supabaseError]: %O", error);
     }
