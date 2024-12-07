@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "../ui/button";
 import { v4 as uuidv4 } from "uuid";
 import { useToken } from "@/utils/context/TokenContext";
 import Link from "next/link";
 
 export const Hero: React.FC = () => {
-  const [loginStatus, setLoginStatus] = useState(false);
   const { hasToken, setHasToken } = useToken();
   const handleLogin = async () => {
     try {
@@ -17,7 +16,6 @@ export const Hero: React.FC = () => {
         "width=600,height=700"
       );
 
-      setLoginStatus(true);
       const userId = uuidv4();
       console.log(userId);
       localStorage.setItem("userId", userId);
@@ -33,6 +31,7 @@ export const Hero: React.FC = () => {
 
       const { token } = e.data;
       if (token) {
+        localStorage.setItem("userId", uuidv4());
         localStorage.setItem("token", token);
         setHasToken(true);
       }

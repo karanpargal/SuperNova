@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
-import localFont from "next/font/local";
 import "./globals.css";
-import { useState } from "react";
 import { Navbar } from "@/components/shared/navbar";
 import { TokenProvider } from "@/utils/context/TokenContext";
 
