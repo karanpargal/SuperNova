@@ -64,13 +64,48 @@ export const InputForm: React.FC = () => {
       const data = await response.json();
       setWalletAddress(data.address);
       localStorage.setItem("address", data.address);
-      localStorage.setItem("ipfsHash", data.ipfsHash);
-      localStorage.setItem("executeIpfsHash", data.executeIpfsHash);
+      localStorage.setItem("ciphertext", data.ciphertext);
+      localStorage.setItem("data_to_encrypt_hash", data.data_to_encrypt_hash);
       await fetch(
         `https://rpc-testnet.supra.com/rpc/v1/wallet/faucet/${walletAddress}`
       );
     } catch (error) {
       console.error("Mint PKP Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClaimToken = async () => {
+    if (!walletAddress) {
+      console.error("Wallet address is missing. Please connect your wallet.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/claim-token`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            accessToken: localStorage.getItem("token"),
+            ipfsHash: "QmRymKnaCZK6zYjqih5U2nKtSv4hVJJFN4UfxARhYyihSR",
+            executeIpfsHash: "QmWJerRYebTcm3P6Gk7HUiBKKbjia8LJJ8KdcZDj4ysr8J",
+            userId: localStorage.getItem("userId"),
+            ciphertext: localStorage.getItem("ciphertext"),
+            address: walletAddress,
+            data_to_encrypt_hash: localStorage.getItem("data_to_encrypt_hash"),
+          }),
+        }
+      );
+      const responseData = await response.json();
+      console.log(responseData);
+    } catch (error) {
+      console.error("Minting Error:", error);
     } finally {
       setLoading(false);
     }
@@ -206,6 +241,7 @@ export const InputForm: React.FC = () => {
                         ? "hover:ring-pink-950"
                         : "hover:ring-purple-500"
                     } md:w-96 w-32 mx-auto md:mt-10 mt-6`}
+                    disabled={loading}
                   >
                     <span
                       className={`absolute inset-0 w-full h-full bg-gradient-to-br ${
@@ -222,29 +258,31 @@ export const InputForm: React.FC = () => {
                     <span className="relative text-white">Mint Token</span>
                   </Button>
                 </Link>
-                <Link href="/register-token">
-                  <Button
-                    className={`relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 ${
+                <Button
+                  className={`relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 ${
+                    walletConnected
+                      ? "hover:ring-pink-950"
+                      : "hover:ring-purple-500"
+                  } md:w-96 w-32 mx-auto md:mt-10 mt-6`}
+                  onClick={() => {
+                    handleClaimToken();
+                  }}
+                  disabled={loading}
+                >
+                  <span
+                    className={`absolute inset-0 w-full h-full bg-gradient-to-br ${
                       walletConnected
-                        ? "hover:ring-pink-950"
-                        : "hover:ring-purple-500"
-                    } md:w-96 w-32 mx-auto md:mt-10 mt-6`}
-                  >
-                    <span
-                      className={`absolute inset-0 w-full h-full bg-gradient-to-br ${
-                        walletConnected
-                          ? "from-white via-app-crimson to-pink-950"
-                          : "from-blue-600 via-purple-600 to-pink-700"
-                      }`}
-                    ></span>
-                    <span
-                      className={`absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 ${
-                        walletConnected ? "bg-pink-950" : "bg-pink-500 "
-                      }rounded-full opacity-30 group-hover:rotate-90 ease`}
-                    ></span>
-                    <span className="relative text-white">Transfer Token</span>
-                  </Button>
-                </Link>
+                        ? "from-white via-app-crimson to-pink-950"
+                        : "from-blue-600 via-purple-600 to-pink-700"
+                    }`}
+                  ></span>
+                  <span
+                    className={`absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 ${
+                      walletConnected ? "bg-pink-950" : "bg-pink-500 "
+                    }rounded-full opacity-30 group-hover:rotate-90 ease`}
+                  ></span>
+                  <span className="relative text-white">Claim Token</span>
+                </Button>
               </div>
             )}
           </div>

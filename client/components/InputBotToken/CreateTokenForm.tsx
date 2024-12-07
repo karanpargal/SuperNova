@@ -122,7 +122,7 @@ export const CreateTokenForm: React.FC = () => {
                     walletConnected ? "text-app-secondary" : "text-app-gray"
                   } md:text-lg text-base`}
                 >
-                  Name
+                  Name of the Token
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -131,7 +131,7 @@ export const CreateTokenForm: React.FC = () => {
                         ? "bg-white text-app-gunmetal"
                         : "bg-app-eerie text-white"
                     }  border-app-jet border placeholder:text-app-gray/60 p-2`}
-                    placeholder="John Doe"
+                    placeholder="Chill Guy"
                     {...field}
                   />
                 </FormControl>
@@ -159,7 +159,7 @@ export const CreateTokenForm: React.FC = () => {
                         ? "bg-white text-app-gunmetal"
                         : "bg-app-eerie text-white"
                     }  border-app-jet border placeholder:text-app-gray/60 p-2`}
-                    placeholder=""
+                    placeholder="CHILL"
                     {...field}
                   />
                 </FormControl>

@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "../ui/button";
 import { InputForm } from "./InputForm";
 import Image from "next/image";
 import { useWalletContext } from "@/utils/context/WalletContext";
+import Link from "next/link";
 
 export const Hero: React.FC = () => {
   const { walletConnected } = useWalletContext();
@@ -24,6 +23,9 @@ export const Hero: React.FC = () => {
               height={50}
               width={50}
             />
+            <Link href="/profile" className="text-black">
+              Profile
+            </Link>
           </div>
           <div className="flex flex-col gap-y-2 md:px-28 px-6 sm:mt-12 py-3 justify-center mx-auto text-center">
             <h1 className="md:text-3xl text-xl text-white font-medium">
@@ -50,6 +52,9 @@ export const Hero: React.FC = () => {
               />
               <h1 className="text-app-gunmetal text-xl tracking-wide">NOVA</h1>
             </div>
+            <Link href="/profile" className="text-black">
+              Profile
+            </Link>
           </div>
           <div className="flex flex-col gap-y-2 md:px-28 px-6 sm:mt-12 py-3 justify-center mx-auto text-center">
             <h1 className="md:text-3xl text-xl text-app-secondary font-medium">
