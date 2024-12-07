@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { v4 as uuidv4 } from "uuid";
+import { useToken } from "@/utils/context/TokenContext";
 
 export const Hero: React.FC = () => {
   const [loginStatus, setLoginStatus] = useState(false);
+  const { hasToken, setHasToken } = useToken();
   const handleLogin = async () => {
     try {
       window.open(
@@ -24,24 +26,16 @@ export const Hero: React.FC = () => {
     const handleMessage = (e: MessageEvent) => {
       if (e.origin !== `${process.env.NEXT_PUBLIC_API_URL}`) return;
 
-      const { token, status } = e.data;
-
-      const userId = uuidv4();
-      console.log(userId);
-      localStorage.setItem("userId", userId);
-
+      const { token } = e.data;
       if (token) {
-        console.log(token);
-        console.log(status);
+        localStorage.setItem("token", token);
+        setHasToken(true);
       }
     };
 
     window.addEventListener("message", handleMessage);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, [loginStatus]);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [setHasToken]);
 
   return (
     <section className="w-full flex flex-col mx-auto text-center tracking-wide gap-y-10 mt-40">
@@ -60,18 +54,28 @@ export const Hero: React.FC = () => {
           Connect your Twitter account to get started with SupraNova AI Agent
         </p>
       </div>
-      <Button
-        onClick={() => {
-          handleLogin();
-        }}
-        className="relative inline-flex items-center justify-center p-4 px-5 py-6 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 w-96 mx-auto mt-10"
-      >
-        <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-700"></span>
-        <span className="absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 bg-pink-500 rounded-full opacity-30 group-hover:rotate-90 ease"></span>
-        <span className="relative text-white font-medium text-base">
-          Connect Twitter
-        </span>
-      </Button>
+      {hasToken ? (
+        <Button className="relative inline-flex items-center justify-center p-4 px-5 py-6 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 w-96 mx-auto mt-10">
+          <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-700"></span>
+          <span className="absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 bg-pink-500 rounded-full opacity-30 group-hover:rotate-90 ease"></span>
+          <span className="relative text-white font-medium text-base">
+            Launch App
+          </span>
+        </Button>
+      ) : (
+        <Button
+          onClick={() => {
+            handleLogin();
+          }}
+          className="relative inline-flex items-center justify-center p-4 px-5 py-6 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 w-96 mx-auto mt-10"
+        >
+          <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-700"></span>
+          <span className="absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 bg-pink-500 rounded-full opacity-30 group-hover:rotate-90 ease"></span>
+          <span className="relative text-white font-medium text-base">
+            Connect Twitter
+          </span>
+        </Button>
+      )}
     </section>
   );
 };

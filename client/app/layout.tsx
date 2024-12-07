@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { useState } from "react";
 import { Navbar } from "@/components/shared/navbar";
+import { TokenProvider } from "@/utils/context/TokenContext";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -37,11 +38,13 @@ export default function RootLayout({
       <body
         className={`${space_grotesk.variable} antialiased bg-app-night font-space-grotesk relative min-h-screen`}
       >
-        <div className="hidden sm:block">
-          <Navbar />
-        </div>
+        <TokenProvider>
+          <div className="hidden sm:block">
+            <Navbar />
+          </div>
 
-        <div className="px-12">{children}</div>
+          <div className="px-12">{children}</div>
+        </TokenProvider>
       </body>
     </html>
   );
