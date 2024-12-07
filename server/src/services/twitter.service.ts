@@ -85,6 +85,11 @@ export class TwitterService {
       }
     | undefined
   > {
+    return {
+      id: "1234567890",
+      name: "Test User",
+      username: "testuser",
+    };
     try {
       const res = await fetch("https://api.x.com/2/users/me", {
         headers: {

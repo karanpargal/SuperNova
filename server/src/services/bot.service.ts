@@ -12,7 +12,11 @@ import { LitContracts } from "@lit-protocol/contracts-sdk";
 import { JsonExecutionSdkParams } from "@lit-protocol/types";
 import { LitActionResource, LitPKPResource } from "@lit-protocol/auth-helpers";
 import { LitService } from "./lit.service";
-import { bs58Decode, hashString } from "../utils/functions/helper";
+import {
+  bs58Decode,
+  getPkpInfoFromMintReceipt,
+  hashString,
+} from "../utils/functions/helper";
 
 export class BotAccountService {
   private readonly twitterService: TwitterService;
@@ -35,7 +39,7 @@ export class BotAccountService {
     ipfsHash: string
   ): Promise<{
     receipt?: providers.TransactionReceipt;
-    tokenId?: BigNumber;
+    tokenId?: string;
     pkpEthAddress: string;
     litNetwork: LIT_NETWORK_VALUES;
     keyId: string;
@@ -84,6 +88,7 @@ export class BotAccountService {
       jsParams: {
         accessToken,
         method: "claimKey",
+        isDev: true,
       },
     };
     debug("[mintPKP] Lit action params: %O", params);
@@ -91,7 +96,9 @@ export class BotAccountService {
 
     debug("[mintPKP] claimKey response: %O", response);
     const claim = response.claims![userId];
+    debug("[mintPKP] claim: %O", claim);
     const derivedKeyId = `0x${claim.derivedKeyId}`;
+    debug("[mintPKP] derivedKeyId: %s", derivedKeyId);
     const publicKey =
       await contractClient.pubkeyRouterContract.read.getDerivedPubkey(
         contractClient.stakingContract.read.address,
@@ -106,8 +113,54 @@ export class BotAccountService {
     debug("[mintPKP] keyId: %s", keyId);
     const mintCost = await contractClient.pkpNftContract.read.mintCost();
     debug("[mintPKP] mintCost:", mintCost);
+    //APPROACH 1
+    // const {
+    //   tx: claimTx,
+    //   res: claimTxReceipt,
+    //   tokenId: pkpTokenId,
+    // } = await contractClient.pkpNftContractUtils.write.claimAndMint(
+    //   derivedKeyId,
+    //   claim.signatures,
+    //   {
+    //     value: mintCost,
+    //     gasLimit: "1000000",
+    //     gasPrice: "10000000000",
+    //   }
+    // );
+    // debug("[mintPKP] claimTx: ", claimTx);
+    // debug("[mintPKP] PKP claim receipt: %O", claimTxReceipt);
+    // const pkpInfo = await getPkpInfoFromMintReceipt(
+    //   claimTxReceipt,
+    //   this.litContracts
+    // );
+    // debug("[mintPKP] pkpInfo:", pkpInfo);
+    // const addPermittedAuthMethodRes1 =
+    //   await this.litContracts.addPermittedAuthMethod({
+    //     pkpTokenId: pkpInfo.tokenId,
+    //     authMethodScopes: [
+    //       AUTH_METHOD_SCOPE.SignAnything,
+    //       AUTH_METHOD_SCOPE.PersonalSign,
+    //     ],
+    //     authMethodType: AUTH_METHOD_TYPE.LitAction,
+    //     authMethodId: bs58Decode(ipfsHash),
+    //   });
+    // debug("[mintPKP] addPermittedAuthMethod-1: %O", addPermittedAuthMethodRes1);
+    // const addPermittedAuthMethodRes2 =
+    //   await this.litContracts.addPermittedAuthMethod({
+    //     pkpTokenId: pkpInfo.tokenId,
+    //     authMethodScopes: [
+    //       AUTH_METHOD_SCOPE.SignAnything,
+    //       AUTH_METHOD_SCOPE.PersonalSign,
+    //     ],
+    //     authMethodType: BigNumber.from(
+    //       hashString(this.CUSTOM_AUTH_TYPE)
+    //     ).toNumber(),
+    //     authMethodId: hashString(keyId),
+    //   });
+    // debug("[mintPKP] addPermittedAuthMethod-2: %O", addPermittedAuthMethodRes2);
+    //APPROACH 2
     const claimTx =
-      await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethods(
+      await contractClient.pkpHelperContract.write.claimAndMintNextAndAddAuthMethodsWithTypes(
         {
           derivedKeyId,
           signatures: claim.signatures,
@@ -168,19 +221,25 @@ export class BotAccountService {
         //   },
         // ]
       );
-    const claimTxReceipt = await claimTx.wait(1);
-    debug("[mintPKP] PKP claim receipt: %O", claimTxReceipt);
+    debug("[mintPKP] claimTx: %O", claimTx);
     // Find the event that contains the token ID
-    const mintEvent = claimTxReceipt.events!.find(
-      (event) => event.event === "Transfer"
+    const claimTxReceipt = await claimTx.wait(1);
+    debug("[mintPKP] claimTxReceipt: %O", claimTxReceipt);
+    const pkpInfo = await getPkpInfoFromMintReceipt(
+      claimTxReceipt,
+      this.litContracts
     );
-
-    // Extract the token ID from the event arguments
-    const tokenId = mintEvent!.args!.tokenId;
+    debug("[mintPKP] pkpInfo: %O", pkpInfo);
+    const permittedAuthMethods =
+      await this.litContracts.pkpPermissionsContract.read.getPermittedAuthMethods(
+        pkpInfo.tokenId
+      );
+    debug("[mintPKP] retrieved permittedAuthMethods: %O", permittedAuthMethods);
     const pkpEthAddress =
       await contractClient.pkpNftContract.read.getEthAddress(
-        BigNumber.from(tokenId)
+        BigNumber.from(pkpInfo.tokenId)
       );
+    debug("[mintPKP] pkpEthAddress: %s", pkpEthAddress);
     await this.supabaseService.savePkp(
       botPK,
       pkpEthAddress,
@@ -189,7 +248,7 @@ export class BotAccountService {
     );
     return {
       receipt: claimTxReceipt,
-      tokenId: tokenId!,
+      tokenId: pkpInfo.tokenId!,
       pkpEthAddress,
       litNetwork: this.litService.litNetwork,
       keyId,

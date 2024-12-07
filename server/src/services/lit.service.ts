@@ -6,19 +6,26 @@ import { LIT_NETWORK, LIT_NETWORK_VALUES } from "@lit-protocol/constants";
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
 import { AuthSig, LitResourceAbilityRequest } from "@lit-protocol/types";
 import { debug, trace } from "console";
-import { ethers, Signer } from "ethers";
+import { BigNumber, ethers, Signer } from "ethers";
 import { SiweMessage } from "siwe";
 import { generateIdSync } from "../utils/functions/helper";
+import { LitContracts } from "@lit-protocol/contracts-sdk";
 
 export class LitService {
-  public readonly litNetwork: LIT_NETWORK_VALUES = LIT_NETWORK.DatilDev;
+  public readonly litNetwork: LIT_NETWORK_VALUES = LIT_NETWORK.DatilTest;
   private readonly litNodeClient: LitNodeClient;
+  private readonly litContracts: LitContracts;
 
   constructor() {
     this.litNodeClient = new LitNodeClient({
       litNetwork: this.litNetwork,
       debug: true,
     });
+    this.litContracts = new LitContracts({
+      network: this.litNetwork,
+      signer: this.getMinterWallet(),
+    });
+    this.litContracts.connect();
   }
 
   public init = async (): Promise<void> => {
@@ -56,6 +63,7 @@ export class LitService {
       expiration:
         expirationTime ?? new Date(Date.now() + 5 * 60 * 1000).toISOString(),
       resourceAbilityRequests: resources,
+      capabilityAuthSigs: [await this.createCapacityDelegationAuthSig()],
       authNeededCallback: async (callbackParams) => {
         const { resourceAbilityRequests, uri, expiration } = callbackParams;
         debug("[generateSessionSigs] AuthCallbackParams: %O", callbackParams);
@@ -143,5 +151,45 @@ export class LitService {
     const wallet = new ethers.Wallet(pvtKey, provider);
 
     return wallet;
+  }
+
+  async createCapacityDelegationAuthSig(
+    pkpEthAddress?: string,
+    signer?: Signer
+  ) {
+    console.log(
+      "[createCapacityDelegationAuthSig] Creating capacity delegation auth sig"
+    );
+    signer = signer ?? this.getMinterWallet();
+    let capacityTokenId = process.env.LIT_CAPACITY_CREDIT_TOKEN_ID ?? "";
+    if (capacityTokenId === "" || capacityTokenId === undefined) {
+      console.log("No Capacity Credit provided, minting a new one...");
+      capacityTokenId = (
+        await this.litContracts.mintCapacityCreditsNFT({
+          requestsPerKilosecond: 10,
+          daysUntilUTCMidnightExpiration: 7,
+        })
+      ).capacityTokenIdStr;
+      console.log(`Minted new Capacity Credit with ID: ${capacityTokenId}`);
+    } else {
+      console.log(
+        `Using provided Capacity Credit with ID: ${process.env.LIT_CAPACITY_CREDIT_TOKEN_ID}`
+      );
+    }
+    const { capacityDelegationAuthSig } =
+      await this.litNodeClient.createCapacityDelegationAuthSig({
+        uses: "1",
+        dAppOwnerWallet: signer,
+        capacityTokenId,
+        delegateeAddresses: [
+          ...(pkpEthAddress != null ? [pkpEthAddress] : []),
+          await signer.getAddress(),
+        ],
+      });
+    console.log(
+      "[createCapacityDelegationAuthSig] Capacity delegation auth sig created",
+      capacityDelegationAuthSig
+    );
+    return capacityDelegationAuthSig;
   }
 }
