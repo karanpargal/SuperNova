@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useToken } from "@/utils/context/TokenContext";
 
@@ -31,6 +31,8 @@ export const Navbar: React.FC = () => {
 
       localStorage.setItem("userId", userId);
       if (token) {
+        console.log("Token:", uuidv4());
+        localStorage.setItem("userId", uuidv4());
         localStorage.setItem("token", token);
         setHasToken(true);
       }

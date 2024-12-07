@@ -31,6 +31,7 @@ export const Hero: React.FC = () => {
 
       const { token } = e.data;
       if (token) {
+        console.log("Token:", uuidv4());
         localStorage.setItem("userId", uuidv4());
         localStorage.setItem("token", token);
         setHasToken(true);
