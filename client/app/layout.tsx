@@ -3,6 +3,7 @@ import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/shared/navbar";
 import { TokenProvider } from "@/utils/context/TokenContext";
+import { WalletProvider } from "@/utils/context/WalletContext";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -34,14 +35,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${space_grotesk.variable} antialiased bg-app-night font-space-grotesk relative min-h-screen`}
+        className={`${space_grotesk.variable} antialiased font-space-grotesk relative min-h-screen`}
       >
         <TokenProvider>
-          <div className="hidden sm:block">
-            <Navbar />
-          </div>
+          <WalletProvider>
+            <div className="hidden sm:block">
+              <Navbar />
+            </div>
 
-          <div className="px-12">{children}</div>
+            <div className="">{children}</div>
+          </WalletProvider>
         </TokenProvider>
       </body>
     </html>

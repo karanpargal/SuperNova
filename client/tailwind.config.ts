@@ -24,6 +24,9 @@ export default {
           jet: "#303030",
           gray: "#9a9a9a",
           blue: "#3f5cea",
+          secondary: "#111821",
+          gunmetal: "#1d2a3a",
+          crimson: "#dd1437",
         },
       },
       animation: {

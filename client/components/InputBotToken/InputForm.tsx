@@ -16,6 +16,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { CopyIcon } from "lucide-react";
+import Link from "next/link";
+import { useWalletContext } from "@/utils/context/WalletContext";
 
 const formSchema = z.object({
   botToken: z.string().min(2, {
@@ -25,6 +27,9 @@ const formSchema = z.object({
 
 export const InputForm: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string>("");
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const { walletConnected } = useWalletContext();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -34,25 +39,31 @@ export const InputForm: React.FC = () => {
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     console.log("Form Data:", data);
+    setSubmitted(true);
   };
 
   const handleMintPkp = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mint`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          accessToken: localStorage.getItem("token"),
-          ipfsHash: "QmP227jaBxfD7CVdx6KEvhVHGuzg2x2L2hK7BW5BLZdBVv",
-          executeIpfsHash: "QmcWfdYzZvU51PXNVa5BxVSXAA2QA76pdwon87Y9iiGaxd",
-          userId: localStorage.getItem("userId"),
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/get-account`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            accessToken: localStorage.getItem("token"),
+            ipfsHash: "QmP227jaBxfD7CVdx6KEvhVHGuzg2x2L2hK7BW5BLZdBVv",
+            executeIpfsHash: "Qmd6U63pCjj6AzpFuxLSfxY7ov6v67MpnYYGyN1MFsjQZU",
+            userId: localStorage.getItem("userId"),
+          }),
+        }
+      );
       const data = await response.json();
       setWalletAddress(data.address);
       localStorage.setItem("address", data.address);
+      localStorage.setItem("ipfsHash", data.ipfsHash);
+      localStorage.setItem("executeIpfsHash", data.executeIpfsHash);
     } catch (error) {
       console.error("Mint PKP Error:", error);
     }
@@ -69,19 +80,29 @@ export const InputForm: React.FC = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="md:space-y-8 space-y-2 border border-app-pink rounded-lg text-left md:w-2/3 w-full md:p-10 p-6 mx-auto"
+          className={`md:space-y-8 space-y-2 border ${
+            walletConnected ? "border-app-crimson" : "border-app-pink"
+          } rounded-lg text-left md:w-2/3 w-full md:p-10 p-6 mx-auto`}
         >
           <FormField
             control={form.control}
             name="botToken"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel className="text-app-gray text-lg">
+                <FormLabel
+                  className={`${
+                    walletConnected ? "text-app-secondary" : "text-app-gray"
+                  } text-lg`}
+                >
                   Bot Token
                 </FormLabel>
                 <FormControl>
                   <Input
-                    className="w-full text-left border-app-jet border bg-app-eerie text-white placeholder:text-app-gray/60 p-2"
+                    className={` w-full text-left ${
+                      walletConnected
+                        ? "bg-white text-app-gunmetal"
+                        : "bg-app-eerie text-white"
+                    }  border-app-jet border placeholder:text-app-gray/60 p-2`}
                     placeholder="your bot token"
                     {...field}
                   />
@@ -119,21 +140,103 @@ export const InputForm: React.FC = () => {
             {!walletAddress && (
               <Button
                 type="button"
-                className="relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 md:w-96 w-64 mx-auto md:mt-10 mt-6"
+                className={`relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 ${
+                  walletConnected
+                    ? "hover:ring-app-crimson"
+                    : "hover:ring-purple-500"
+                } md:w-96 w-64 mx-auto md:mt-10 mt-6`}
                 onClick={() => {
                   handleMintPkp();
                 }}
               >
-                <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-700"></span>
-                <span className="absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 bg-pink-500 rounded-full opacity-30 group-hover:rotate-90 ease"></span>
+                <span
+                  className={`absolute inset-0 w-full h-full bg-gradient-to-br ${
+                    walletConnected
+                      ? "from-white via-app-crimson to-pink-950"
+                      : "from-blue-600 via-purple-600 to-pink-700"
+                  }`}
+                ></span>
+                <span
+                  className={`absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 ${
+                    walletConnected ? "bg-pink-950" : "bg-pink-500 "
+                  }rounded-full opacity-30 group-hover:rotate-90 ease`}
+                ></span>
                 <span className="relative text-white">Get Wallet</span>
               </Button>
             )}
-            <Button className="relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500 md:w-96 w-64 mx-auto md:mt-10 mt-6">
-              <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-700"></span>
-              <span className="absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 bg-pink-500 rounded-full opacity-30 group-hover:rotate-90 ease"></span>
-              <span className="relative text-white">Submit</span>
-            </Button>
+            {submitted ? (
+              <Button
+                type="button"
+                className={`relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 ${
+                  walletConnected
+                    ? "hover:ring-app-crimson"
+                    : "hover:ring-purple-500"
+                } md:w-96 w-64 mx-auto md:mt-10 mt-6`}
+              >
+                <span
+                  className={`absolute inset-0 w-full h-full bg-gradient-to-br ${
+                    walletConnected
+                      ? "from-white via-app-crimson to-pink-950"
+                      : "from-blue-600 via-purple-600 to-pink-700"
+                  }`}
+                ></span>
+                <span
+                  className={`absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 ${
+                    walletConnected ? "bg-pink-950" : "bg-pink-500 "
+                  }rounded-full opacity-30 group-hover:rotate-90 ease`}
+                ></span>
+                <span className="relative text-white">Submit</span>
+              </Button>
+            ) : (
+              <div className="flex justify-between mx-auto items-center gap-x-10">
+                <Link href="/create-token">
+                  <Button
+                    className={`relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 ${
+                      walletAddress
+                        ? "hover:ring-pink-950"
+                        : "hover:ring-purple-500"
+                    } md:w-96 w-32 mx-auto md:mt-10 mt-6`}
+                  >
+                    <span
+                      className={`absolute inset-0 w-full h-full bg-gradient-to-br ${
+                        walletConnected
+                          ? "from-white via-app-crimson to-pink-950"
+                          : "from-blue-600 via-purple-600 to-pink-700"
+                      }`}
+                    ></span>
+                    <span
+                      className={`absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 ${
+                        walletConnected ? "bg-pink-950" : "bg-pink-500 "
+                      }rounded-full opacity-30 group-hover:rotate-90 ease`}
+                    ></span>
+                    <span className="relative text-white">Mint Token</span>
+                  </Button>
+                </Link>
+                <Link href="/register-token">
+                  <Button
+                    className={`relative inline-flex items-center justify-center md:p-4 p-2 md:px-5 px-2 md:py-6 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 ${
+                      walletConnected
+                        ? "hover:ring-pink-950"
+                        : "hover:ring-purple-500"
+                    } md:w-96 w-32 mx-auto md:mt-10 mt-6`}
+                  >
+                    <span
+                      className={`absolute inset-0 w-full h-full bg-gradient-to-br ${
+                        walletConnected
+                          ? "from-white via-app-crimson to-pink-950"
+                          : "from-blue-600 via-purple-600 to-pink-700"
+                      }`}
+                    ></span>
+                    <span
+                      className={`absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 ${
+                        walletConnected ? "bg-pink-950" : "bg-pink-500 "
+                      }rounded-full opacity-30 group-hover:rotate-90 ease`}
+                    ></span>
+                    <span className="relative text-white">Transfer Token</span>
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </form>
       </Form>

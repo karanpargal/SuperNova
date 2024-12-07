@@ -6,10 +6,12 @@ import { useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useToken } from "@/utils/context/TokenContext";
 import Image from "next/image";
+import { useWalletContext } from "@/utils/context/WalletContext";
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
   const { hasToken, setHasToken } = useToken();
+  const { walletConnected } = useWalletContext();
 
   const handleLogin = async () => {
     try {
@@ -59,15 +61,40 @@ export const Navbar: React.FC = () => {
 
   return (
     <section>
-      <nav className="text-white flex items-center px-12 py-6 justify-between">
-        <Image
-          src={"/assets/logo.svg"}
-          alt="logo"
-          width={100}
-          height={100}
-          className="md:block hidden"
-        />
-        <ul className="flex items-center gap-x-6 text-lg font-medium bg-app-dark-purple/50 px-10 ml-20 py-4 rounded-full border border-app-pink">
+      <nav
+        className={`flex items-center px-12 py-6 justify-between ${
+          walletConnected
+            ? "text-app-gunmetal bg-app-white"
+            : "bg-app-night text-white"
+        }`}
+      >
+        {walletConnected ? (
+          <div className="flex items-center gap-x-1">
+            <Image
+              src={"/assets/supra_logo.png"}
+              alt="SUPRA"
+              height={40}
+              width={40}
+            />
+            <h1 className="text-app-gunmetal text-2xl tracking-wide">NOVA</h1>
+          </div>
+        ) : (
+          <Image
+            src={"/assets/logo.svg"}
+            alt="logo"
+            width={100}
+            height={100}
+            className="md:block hidden"
+          />
+        )}
+
+        <ul
+          className={`flex items-center gap-x-6 text-lg font-medium px-10 ml-20 py-4 rounded-full border ${
+            walletConnected
+              ? "border-app-crimson bg-app-crimson/20"
+              : "bg-app-dark-purple/50 border-app-pink"
+          }`}
+        >
           {navItems.map((item) => {
             const isActive = pathname === item.url;
             return (
@@ -86,7 +113,13 @@ export const Navbar: React.FC = () => {
           })}
         </ul>
         {hasToken ? (
-          <Button className="text-xl text-white rounded-full py-6 border border-app-pink bg-app-dark-purple">
+          <Button
+            className={`text-xl rounded-full py-6 border ${
+              walletConnected
+                ? "border-app-crimson bg-app-crimson/20 text-app-gunmetal"
+                : "border-app-pink bg-app-dark-purple text-white"
+            }`}
+          >
             Launch App
           </Button>
         ) : (
