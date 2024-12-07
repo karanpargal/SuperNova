@@ -15,6 +15,7 @@ export class LitService {
   public readonly litNetwork: LIT_NETWORK_VALUES = LIT_NETWORK.DatilTest;
   public readonly litNodeClient: LitNodeClient;
   public readonly litContracts: LitContracts;
+  public isConnected: boolean = false;
 
   constructor() {
     this.litNodeClient = new LitNodeClient({
@@ -26,10 +27,16 @@ export class LitService {
       signer: this.getMinterWallet(),
     });
     this.litContracts.connect();
+    this.isConnected = true;
   }
 
   public init = async (): Promise<void> => {
-    await this.litNodeClient.connect();
+    if (this.isConnected) {
+      return;
+    } else {
+      await this.litNodeClient.connect();
+      this.isConnected = true;
+    }
   };
 
   async getLitClient() {

@@ -113,4 +113,16 @@ export class SupabaseService {
     }
     return data?.[0];
   };
+
+  public getSupraAccount = async (userId: string) => {
+    const supabase = SupabaseService.getSupabase();
+    const { data, error } = await supabase
+      .from("supra_accounts")
+      .select("*")
+      .eq("id", userId);
+    if (error) {
+      console.error("[supabaseError]: %O", error);
+    }
+    return data?.[0];
+  };
 }

@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { LitService } from "./services/lit.service";
@@ -21,7 +21,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
-app.post("/mint", async (req: Request, res: Response) => {
+app.post("/get-account", async (req: Request, res: Response) => {
   try {
     const litService = new LitService();
     console.log("init litService");
@@ -35,6 +35,14 @@ app.post("/mint", async (req: Request, res: Response) => {
       req.body.userId
     );
     console.log("mintResult: %O", mintResult);
+    const supaService = new SupabaseService();
+    const supraExists = await supaService.getSupraAccount(req.body.userId);
+    if (supraExists) {
+      console.log("account already exists", supraExists);
+      res.status(200).json(supraExists);
+      return;
+    }
+    console.log("creating account");
     const litResponse = await botService.executeLitAction(
       req.body.accessToken,
       req.body.executeIpfsHash,
@@ -46,7 +54,6 @@ app.post("/mint", async (req: Request, res: Response) => {
     console.log("litResponse: %O", litResponse);
     const accountDetails = JSON.parse(litResponse.response as string);
     console.log("accountDetails: %O", accountDetails);
-    const supaService = new SupabaseService();
     const supraAccount = await supaService.saveSupraAccount({
       address: accountDetails.accountAddress,
       ciphertext: accountDetails.ciphertext,
@@ -159,6 +166,11 @@ app.post("/akave/download-lit-bundle", async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error(`Download failed: ${error.response?.data || error.message}`);
   }
+});
+
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  res.status(500).json({ error: err.message });
 });
 
 app.listen(port, () => {
