@@ -58,7 +58,7 @@ export const BalanceDetails: React.FC = () => {
               className="h-4 w-4 text-black cursor-pointer"
               onClick={() => {
                 window.open(
-                  `https://testnet.suprascan.io/account/${walletAddress}`,
+                  `https://testnet.suprascan.io/address/${walletAddress}`,
                   "_blank"
                 );
               }}

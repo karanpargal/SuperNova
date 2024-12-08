@@ -7,6 +7,7 @@ import { useToken } from "@/utils/context/TokenContext";
 import Link from "next/link";
 import Image from "next/image";
 import { useWalletContext } from "@/utils/context/WalletContext";
+import { useState } from "react";
 
 export const Hero: React.FC = () => {
   const { walletConnected } = useWalletContext();

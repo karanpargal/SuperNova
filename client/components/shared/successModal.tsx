@@ -23,11 +23,11 @@ export const SuccessModal: React.FC<{
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="bg-white w-full max-w-md md:max-w-lg h-auto rounded-lg p-4 md:p-6 relative">
+      <DialogContent className="bg-white w-full w-2xl md:max-w-lg h-auto rounded-lg p-4 md:p-6 relative border-2 border-app-crimson">
         <DialogHeader>
           <DialogClose asChild>
             <CircleX
-              className="absolute right-3 top-3 h-6 w-6 text-gray-500 hover:text-red-500 cursor-pointer"
+              className="absolute -right-2 -top-3 h-5 w-5 hover:text-red-500 cursor-pointer fill-app-secondary text-white"
               onClick={() => setIsOpen(false)}
             />
           </DialogClose>
@@ -45,7 +45,7 @@ export const SuccessModal: React.FC<{
             animationData={animation}
             className="h-32 w-32 md:h-48 md:w-48"
           />
-          <ul className="w-full flex flex-col gap-y-2 border border-app-crimson p-4 rounded-lg">
+          <ul className="w-full flex flex-col gap-y-2 border border-app-secondary bg-app-gunmetal/20 p-4 rounded-lg">
             {ListItems.map((item) => (
               <li
                 key={item.label}

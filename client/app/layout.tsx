@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${space_grotesk.variable} antialiased font-space-grotesk relative min-h-screen`}
+        className={`${space_grotesk.variable} antialiased font-space-grotesk relative min-h-screen bg-white`}
       >
         <TokenProvider>
           <WalletProvider>
