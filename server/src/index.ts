@@ -10,6 +10,7 @@ import { akaveWrapper } from "./utils/functions/akave-wrapper";
 import path = require("path");
 import { SupabaseService } from "./services/supabase.service";
 import { TokenResponse } from "./utils/functions/helper";
+import { TelegramService } from "./services/telegram.service";
 
 dotenv.config();
 
@@ -223,6 +224,10 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ error: err.message });
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
+  const telegramService = TelegramService.getInstance();
+  telegramService.start();
+  console.log("Telegram bot started");
+  console.log(await telegramService.getBotInfo());
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
