@@ -7,3 +7,6 @@
 [submodule "supra-contracts"]
 	path = supra-contracts
 	url = https://github.com/Srivastava57Harsh/supra-contracts
+[submodule "supranova-twitter-bot"]
+	path = supranova-twitter-bot
+	url = https://github.com/ankit7241/supranova-twitter-bot
