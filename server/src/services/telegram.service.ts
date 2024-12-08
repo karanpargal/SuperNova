@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Bot, webhookCallback } from "grammy";
 
 export class TelegramService {
@@ -24,6 +25,18 @@ export class TelegramService {
     });
   }
 
+  public async getAIRecommendation(text: string, chatId: number) {
+    try {
+      const { data } = await axios.post(`${process.env.AI_API_URL}/v1/invoke`, {
+        message: text,
+        threadId: chatId < 0 ? chatId * -1 : chatId,
+      });
+      return data.message;
+    } catch (err) {
+      return "Unable to reach the AI server, oops!";
+    }
+  }
+
   public async start(): Promise<void> {
     try {
       // all command handlers can be registered here
@@ -32,9 +45,15 @@ export class TelegramService {
           "Hello, I'm Supranova, your gateway to meme coin economy on Supra, powered by Lit Network!"
         )
       );
-      this.bot.on("message::mention", (ctx) => {
-        ctx.reply("Sorry don't have funds", {
-          reply_to_message_id: ctx.msg.message_id
+      this.bot.on("message::mention", async (ctx) => {
+        const text = ctx.message.text?.replace("@supranovabot", "");
+        console.log(text);
+        const recommendation = await this.getAIRecommendation(
+          text!,
+          ctx.msg.chat.id
+        );
+        ctx.reply(recommendation, {
+          reply_to_message_id: ctx.msg.message_id,
         });
       });
       this.bot.catch(async (error) => {
